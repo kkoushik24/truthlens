@@ -715,9 +715,9 @@ function setupClaimFilters() {
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       filterBtns.forEach((b) => {
-        b.className = "px-2.5 py-1 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-white/5";
+        b.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-white/5";
       });
-      btn.className = "px-2.5 py-1 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 filter-active";
+      btn.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 filter-active";
       activeClaimFilter = btn.getAttribute("data-filter");
 
       if (activeCaseData && activeCaseData.text_analysis) {
