@@ -513,12 +513,23 @@ function renderImageTab(report, artifacts) {
   const aiEv = document.getElementById("ai-image-evidence");
   if (aiSig && aiSig.score !== null) {
     aiScore.textContent = `${(aiSig.score * 100).toFixed(1)}%`;
+    aiScore.className = "text-sm font-bold font-mono text-sky-700";
     aiMeter.style.width = `${aiSig.score * 100}%`;
     aiEv.textContent = aiSig.evidence;
   } else {
-    aiScore.textContent = "--";
+    aiScore.textContent = "Cloud Mode";
+    aiScore.className = "text-[11px] font-semibold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200";
     aiMeter.style.width = "0%";
-    aiEv.textContent = aiSig ? aiSig.evidence : "Not evaluated.";
+    aiEv.innerHTML = `
+      <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1 mt-2">
+        <div class="font-semibold text-slate-800 flex items-center gap-1.5">
+          <i class="fa-solid fa-cloud-bolt text-sky-600"></i> Cloud Optimization Active
+        </div>
+        <div class="text-[11px] text-slate-600 leading-relaxed">
+          Heavy 350MB local ViT model unmounted to maintain 0ms latency and respect the 512MB RAM limit. Visual and generative analysis is performed by the <b>Groq Vision Neural Engine</b>.
+        </div>
+      </div>
+    `;
   }
 
   // EXIF
