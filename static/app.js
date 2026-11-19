@@ -449,9 +449,9 @@ function renderOverviewTab(report) {
       .map((s) => {
         const scoreLabel = s.score !== null ? `Score: ${s.score.toFixed(2)}` : "SKIPPED";
         return `
-        <div class="flex items-center justify-between py-1.5 border-b border-white/5">
-          <span class="text-slate-300 font-medium">${s.name}</span>
-          <span class="font-mono text-[11px] text-emerald-400">${scoreLabel}</span>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-800 font-medium">${s.name}</span>
+          <span class="font-mono text-[11px] text-emerald-700 font-bold">${scoreLabel}</span>
         </div>
       `;
       })
@@ -579,9 +579,9 @@ function renderVideoTab(report, artifacts) {
   const gallery = document.getElementById("video-flagged-frames");
   if (vidAiSig && vidAiSig.evidence) {
     gallery.innerHTML = `
-      <div class="cyber-card p-3 text-xs bg-slate-900 border-red-500/25">
-        <div class="font-bold text-red-400 mb-1 font-hud">Flagged Keyframe</div>
-        <p class="text-slate-300 font-mono">${vidAiSig.evidence}</p>
+      <div class="cyber-card p-3 text-xs bg-white border border-rose-200">
+        <div class="font-bold text-rose-700 mb-1 font-hud">Flagged Keyframe</div>
+        <p class="text-slate-800 font-mono">${vidAiSig.evidence}</p>
       </div>
     `;
   } else {
@@ -680,9 +680,9 @@ function renderTextTab(report, textAnalysis, artifacts) {
     bundleList.innerHTML = evItems
       .map(
         (ev) => `
-      <div class="py-1 border-b border-white/5">
-        <b class="text-cyan-400 font-mono">[${ev.id}]</b> <span class="text-slate-500 font-mono text-[10px]">(${ev.source})</span>: 
-        <span class="text-slate-300 font-sans">${ev.text}</span>
+      <div class="py-1 border-b border-slate-100">
+        <b class="text-sky-700 font-mono">[${ev.id}]</b> <span class="text-slate-500 font-mono text-[10px]">(${ev.source})</span>: 
+        <span class="text-slate-800 font-sans">${ev.text}</span>
       </div>
     `
       )
@@ -698,10 +698,10 @@ function renderTextTab(report, textAnalysis, artifacts) {
     unvList.innerHTML = unverified
       .map(
         (uv) => `
-      <div class="p-2 rounded bg-amber-950/20 border border-amber-500/20 text-xs">
-        <div class="font-bold text-amber-300 font-hud">"${uv.claim_text}" (${uv.type})</div>
-        <div class="text-slate-300 mt-0.5"><b>Why:</b> ${uv.reason}</div>
-        <div class="text-cyan-300 mt-0.5 font-mono"><b>Human Check:</b> ${uv.human_check}</div>
+      <div class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-slate-800">
+        <div class="font-bold text-amber-900 font-hud">"${uv.claim_text}" (${uv.type})</div>
+        <div class="text-slate-700 mt-0.5"><b>Why:</b> ${uv.reason}</div>
+        <div class="text-sky-800 mt-0.5 font-mono text-[11px]"><b>Human Check:</b> ${uv.human_check}</div>
       </div>
     `
       )
@@ -790,7 +790,7 @@ function renderCorrelationTab(report) {
             </span>
             <div class="flex items-center gap-1">${cites}</div>
           </div>
-          <p class="text-xs text-slate-200 leading-relaxed font-sans">${f.finding}</p>
+          <p class="text-xs text-slate-800 leading-relaxed font-sans font-medium mt-1">${f.finding}</p>
         </div>
       `;
       })
@@ -823,11 +823,11 @@ function renderReportTab(data) {
     hashesList.innerHTML = Object.entries(hashes)
       .map(
         ([fname, h]) => `
-      <div class="flex items-center justify-between py-1.5 border-b border-white/5">
-        <span class="text-slate-400 truncate max-w-xs">${fname}:</span>
+      <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+        <span class="text-slate-700 font-medium truncate max-w-xs">${fname}:</span>
         <div class="flex items-center gap-2">
-          <span class="text-cyan-400 font-mono text-[11px] truncate max-w-sm">${h}</span>
-          <button type="button" class="text-slate-500 hover:text-cyan-400 text-xs" onclick="navigator.clipboard.writeText('${h}')" title="Copy Hash">
+          <span class="text-sky-700 font-mono text-[11px] truncate max-w-sm font-semibold">${h}</span>
+          <button type="button" class="text-slate-400 hover:text-sky-600 text-xs" onclick="navigator.clipboard.writeText('${h}')" title="Copy Hash">
             <i class="fa-solid fa-copy"></i>
           </button>
         </div>
