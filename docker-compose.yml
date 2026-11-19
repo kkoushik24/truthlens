@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  truthlens:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: truthlens_workstation
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_TEXT_MODEL=${GROQ_TEXT_MODEL:-openai/gpt-oss-120b}
+      - GROQ_VISION_MODEL=${GROQ_VISION_MODEL:-qwen/qwen3.8-27b}
+      - LLM_PROVIDER=groq
+    volumes:
+      - ./cases:/app/cases
+      - ./demo_cases:/app/demo_cases
+    restart: unless-stopped
