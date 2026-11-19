@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TruthLens | Multimodal Digital Forensics Workstation</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
+  
+  <!-- Tailwind CSS & FontAwesome Icons CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="min-h-screen flex flex-col bg-[#070b14] text-slate-100">
+
+  <!-- ==============================================================================
+       TOP GLOBAL NAVIGATION BAR
+       ============================================================================== -->
+  <header class="bg-[#0f172a]/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-lg shadow-lg shadow-cyan-500/30">
+        <i class="fa-solid fa-magnifying-glass-chart"></i>
+      </div>
+      <div>
+        <div class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300 bg-clip-text text-transparent">
+          TRUTHLENS
+        </div>
+        <div class="text-[10px] text-slate-400 tracking-wider font-semibold uppercase">
+          Multimodal Forensics Workstation
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Status & Quick Action Buttons -->
+    <div class="flex items-center gap-4">
+      <div class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700 text-xs text-slate-300 font-mono">
+        <span class="pulse-indicator"></span>
+        <span>ENGINE ONLINE</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="btn-demo-case1" class="btn-secondary text-xs py-1.5 px-3 border-red-500/30 hover:border-red-500/60 text-red-300">
+          <i class="fa-solid fa-triangle-exclamation text-red-400"></i> Demo: Spliced Photo
+        </button>
+        <button id="btn-demo-case2" class="btn-secondary text-xs py-1.5 px-3 border-emerald-500/30 hover:border-emerald-500/60 text-emerald-300">
+          <i class="fa-solid fa-shield-halved text-emerald-400"></i> Demo: Wildlife
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==============================================================================
+       MAIN WORKSPACE LAYOUT (SIDEBAR + CONTENT)
+       ============================================================================== -->
+  <div class="flex-1 flex flex-col lg:flex-row">
+
+    <!-- SIDEBAR / STAGING ZONE -->
+    <aside class="w-full lg:w-96 bg-[#0a0f1d] border-r border-white/10 p-5 flex flex-col gap-5 overflow-y-auto shrink-0">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+          <i class="fa-solid fa-folder-open"></i> Evidence Staging
+        </h2>
+        <button id="btn-reset" class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+      </div>
+
+      <!-- Live File Inputs Form -->
+      <form id="forensic-form" class="flex flex-col gap-4">
+        
+        <!-- Image Upload Dropzone -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span><i class="fa-solid fa-image text-cyan-400 mr-1.5"></i> Image Asset</span>
+            <span class="text-[10px] text-slate-500 font-mono">JPG, PNG, WEBP</span>
+          </label>
+          <div id="dropzone-img" class="dropzone">
+            <input type="file" id="input-img" accept="image/*" class="hidden">
+            <div id="preview-img-container" class="hidden mb-2 relative">
+              <img id="preview-img" class="max-h-32 mx-auto rounded border border-white/10 object-contain" src="">
+              <button type="button" id="clear-img" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div id="prompt-img" class="text-xs text-slate-400">
+              <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-500 mb-1 block"></i>
+              Drop image or <span class="text-cyan-400 font-semibold underline">browse</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Upload Dropzone -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span><i class="fa-solid fa-video text-blue-400 mr-1.5"></i> Video Asset</span>
+            <span class="text-[10px] text-slate-500 font-mono">MP4, MOV, MKV</span>
+          </label>
+          <div id="dropzone-vid" class="dropzone">
+            <input type="file" id="input-vid" accept="video/*" class="hidden">
+            <div id="preview-vid-container" class="hidden text-xs text-blue-300 flex items-center justify-between">
+              <span id="name-vid" class="truncate font-mono"></span>
+              <button type="button" id="clear-vid" class="text-red-400 hover:text-red-300 text-xs ml-2"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div id="prompt-vid" class="text-xs text-slate-400">
+              <i class="fa-solid fa-file-video text-xl text-slate-500 mb-1 block"></i>
+              Drop video or <span class="text-cyan-400 font-semibold underline">browse</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Upload Dropzone -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span><i class="fa-solid fa-microphone-lines text-indigo-400 mr-1.5"></i> Audio Track</span>
+            <span class="text-[10px] text-slate-500 font-mono">WAV, MP3, FLAC</span>
+          </label>
+          <div id="dropzone-aud" class="dropzone">
+            <input type="file" id="input-aud" accept="audio/*" class="hidden">
+            <div id="preview-aud-container" class="hidden text-xs text-indigo-300 flex items-center justify-between">
+              <span id="name-aud" class="truncate font-mono"></span>
+              <button type="button" id="clear-aud" class="text-red-400 hover:text-red-300 text-xs ml-2"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div id="prompt-aud" class="text-xs text-slate-400">
+              <i class="fa-solid fa-file-audio text-xl text-slate-500 mb-1 block"></i>
+              Drop audio or <span class="text-cyan-400 font-semibold underline">browse</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contextual Claim / Caption Input -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span><i class="fa-solid fa-comment-dots text-emerald-400 mr-1.5"></i> Caption / Contextual Claim</span>
+            <span id="char-counter" class="text-[10px] text-slate-500 font-mono">0 / 1000</span>
+          </label>
+          <textarea id="caption-input" rows="3" maxlength="1000"
+            class="w-full bg-[#0f172a] border border-white/10 rounded-lg p-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 resize-none transition"
+            placeholder="e.g. A banana walking on a beach in 2019..."></textarea>
+        </div>
+
+        <!-- Run Primary Action Button -->
+        <button type="submit" id="btn-submit" class="btn-primary w-full py-3 mt-1 text-sm tracking-wide">
+          <i class="fa-solid fa-microscope text-base"></i> Run Forensic Investigation
+        </button>
+      </form>
+
+      <div class="mt-auto pt-3 border-t border-white/10 text-center">
+        <p class="text-[10px] text-slate-500 font-mono">
+          TruthLens Core Engine • CPU Optimized • Groq LLaMA & Qwen
+        </p>
+      </div>
+    </aside>
+
+    <!-- WORKSPACE VIEW AREA -->
+    <main class="flex-1 p-6 overflow-y-auto">
+
+      <!-- WELCOME STATE (SHOWN WHEN NO CASE IS ACTIVE) -->
+      <section id="welcome-state" class="max-w-5xl mx-auto py-8">
+        <div class="verdict-hero text-center py-12 px-6">
+          <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 text-3xl mb-4 shadow-xl shadow-cyan-500/10">
+            <i class="fa-solid fa-fingerprint"></i>
+          </div>
+          <h1 class="text-3xl lg:text-4xl font-extrabold tracking-tight mb-3 bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300 bg-clip-text text-transparent">
+            Autonomous Multimodal Digital Forensics
+          </h1>
+          <p class="text-slate-400 text-sm lg:text-base max-w-2xl mx-auto mb-6 leading-relaxed">
+            TruthLens evaluates digital evidence across imagery, video, audio tracks, and textual claims using deterministic physical constraints and multi-signal cross-modal correlation.
+          </p>
+
+          <div class="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
+            <span class="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold">
+              <i class="fa-solid fa-cube mr-1"></i> ELA Compression Heatmaps
+            </span>
+            <span class="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold">
+              <i class="fa-solid fa-film mr-1"></i> Video Keyframe Sampling
+            </span>
+            <span class="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold">
+              <i class="fa-solid fa-wave-square mr-1"></i> Acoustic Spectrograms
+            </span>
+            <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+              <i class="fa-solid fa-language mr-1"></i> Grounded Claim Verification
+            </span>
+            <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-semibold">
+              <i class="fa-solid fa-diagram-project mr-1"></i> Cross-Modal Correlation
+            </span>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5 mt-8">
+          <!-- Demo 1 Launcher Card -->
+          <div class="cyber-card cyber-card-interactive cursor-pointer" onclick="loadDemoCase('case_01_spliced_photo_claim')">
+            <div class="flex items-center justify-between mb-3">
+              <span class="badge-tier badge-elevated text-xs"><i class="fa-solid fa-circle-exclamation"></i> ELEVATED RISK</span>
+              <span class="text-xs text-slate-500 font-mono">Case DEMO-2026-ELEVATED</span>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Case 1: Spliced Photo with Context Contradiction</h3>
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+              Demonstrates ELA compression divergence, Photoshop metadata tags, and out-of-context contextual claim contradiction.
+            </p>
+            <div class="flex items-center justify-between text-xs text-cyan-400 font-semibold pt-3 border-t border-white/5">
+              <span>Inspect Investigation Dossier</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </div>
+          </div>
+
+          <!-- Demo 2 Launcher Card -->
+          <div class="cyber-card cyber-card-interactive cursor-pointer" onclick="loadDemoCase('case_02_authentic_wildlife')">
+            <div class="flex items-center justify-between mb-3">
+              <span class="badge-tier badge-low text-xs"><i class="fa-solid fa-circle-check"></i> LOW SUSPICION</span>
+              <span class="text-xs text-slate-500 font-mono">Case DEMO-2026-AUTHENTIC</span>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Case 2: Authentic Wildlife Photography</h3>
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+              Demonstrates pristine Canon DSLR EXIF hardware tags, uniform compression baseline, and verified descriptive caption alignment.
+            </p>
+            <div class="flex items-center justify-between text-xs text-cyan-400 font-semibold pt-3 border-t border-white/5">
+              <span>Inspect Investigation Dossier</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACTIVE CASE DASHBOARD (SHOWN WHEN CASE IS LOADED) -->
+      <section id="case-dashboard" class="hidden max-w-6xl mx-auto space-y-6">
+
+        <!-- HERO VERDICT BAR -->
+        <div class="cyber-card p-6 border-white/10 bg-gradient-to-r from-slate-900/90 via-[#0f172a] to-slate-900/90 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="space-y-2">
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Case File:</span>
+              <span id="case-id-display" class="font-mono text-cyan-400 font-bold text-lg"></span>
+              <span id="case-mode-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider"></span>
+            </div>
+            <p class="text-xs text-slate-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-scale-balanced text-cyan-400"></i>
+              <span>Forensic scores represent probability indicators of modification, <b>NEVER</b> definitive verdicts.</span>
+            </p>
+          </div>
+
+          <div class="flex items-center gap-5 self-end md:self-center shrink-0">
+            <div class="text-right">
+              <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Forensic Risk Tier</div>
+              <div id="verdict-tier-badge"></div>
+            </div>
+            <div class="w-px h-12 bg-white/10 hidden sm:block"></div>
+            <div class="w-32 text-right">
+              <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Assessed Confidence</div>
+              <div id="confidence-percentage" class="text-xl font-bold font-mono text-white">--</div>
+              <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+                <div id="confidence-meter-bar" class="h-full bg-cyan-400 transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WORKSTATION NAVIGATION TABS -->
+        <div class="border-b border-white/10 flex items-center gap-1 overflow-x-auto no-scrollbar">
+          <button class="tab-btn active" data-tab="tab-overview"><i class="fa-solid fa-chart-pie mr-1.5"></i> Overview</button>
+          <button class="tab-btn" data-tab="tab-image"><i class="fa-solid fa-image mr-1.5"></i> Image Forensics</button>
+          <button class="tab-btn" data-tab="tab-video"><i class="fa-solid fa-video mr-1.5"></i> Video Forensics</button>
+          <button class="tab-btn" data-tab="tab-audio"><i class="fa-solid fa-headphones mr-1.5"></i> Audio Forensics</button>
+          <button class="tab-btn" data-tab="tab-text"><i class="fa-solid fa-file-lines mr-1.5"></i> Text & Context</button>
+          <button class="tab-btn" data-tab="tab-corr"><i class="fa-solid fa-diagram-project mr-1.5"></i> Cross-Modal</button>
+          <button class="tab-btn" data-tab="tab-report"><i class="fa-solid fa-file-pdf mr-1.5"></i> Dossier & Export</button>
+        </div>
+
+        <!-- ==============================================================================
+             TAB PANELS CONTAINER
+             ============================================================================== -->
+        <div id="tab-content" class="space-y-6">
+
+          <!-- TAB 1: OVERVIEW -->
+          <div id="tab-overview" class="tab-pane space-y-5">
+            <!-- Executive Summary Card -->
+            <div class="cyber-card">
+              <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-clipboard-check"></i> Executive Forensic Summary
+              </h3>
+              <div id="overview-summary-text" class="text-sm text-slate-200 leading-relaxed"></div>
+            </div>
+
+            <!-- Primary Drivers & Unremarkable Checks Grid -->
+            <div class="grid md:grid-cols-2 gap-5">
+              <!-- Primary Drivers -->
+              <div class="cyber-card">
+                <h4 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <i class="fa-solid fa-triangle-exclamation"></i> Primary Suspicion Drivers (Score &ge; 0.35)
+                </h4>
+                <div id="primary-drivers-list" class="space-y-2"></div>
+              </div>
+
+              <!-- Unremarkable Checks -->
+              <div class="cyber-card">
+                <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <i class="fa-solid fa-circle-check"></i> Checks Finding No Anomalies (Score &lt; 0.35)
+                </h4>
+                <div id="unremarkable-checks-list" class="space-y-2 text-xs text-slate-400"></div>
+              </div>
+            </div>
+
+            <!-- Human OSINT Checklist -->
+            <div class="cyber-card border-amber-500/20 bg-amber-500/5">
+              <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-user-check"></i> Recommended Human OSINT Verification Protocol
+              </h4>
+              <ul id="recommended-checks-list" class="text-xs text-slate-300 space-y-1.5 list-disc pl-5"></ul>
+            </div>
+          </div>
+
+          <!-- TAB 2: IMAGE FORENSICS -->
+          <div id="tab-image" class="tab-pane hidden space-y-5">
+            <div class="grid lg:grid-cols-2 gap-5">
+              <!-- ELA Heatmap Viewer -->
+              <div class="cyber-card">
+                <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                  <span><i class="fa-solid fa-layer-group mr-1.5"></i> Error Level Analysis (ELA) Heatmap</span>
+                  <span id="ela-score-badge" class="font-mono text-[11px] text-slate-400"></span>
+                </h4>
+                <div class="relative rounded-lg overflow-hidden border border-white/10 bg-black/50 aspect-video flex items-center justify-center">
+                  <img id="ela-heatmap-img" class="w-full h-full object-contain hidden" src="" alt="ELA Heatmap" onerror="this.classList.add('hidden'); document.getElementById('ela-placeholder')?.classList.remove('hidden');">
+                  <div id="ela-placeholder" class="text-xs text-slate-500 font-mono flex flex-col items-center gap-1.5 p-4 text-center">
+                    <i class="fa-solid fa-layer-group text-2xl text-slate-600 mb-1"></i>
+                    <span>No ELA heatmap artifact available</span>
+                  </div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2 leading-normal">
+                  ELA recompresses imagery at JPEG quality 90 to identify compression divergence across surfaces.
+                </p>
+              </div>
+
+              <!-- AI Image Classifier & Software Tag -->
+              <div class="space-y-5">
+                <div class="cyber-card">
+                  <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-robot"></i> AI Generator Classifier (<span class="font-mono lowercase">umm-maybe</span>)
+                  </h4>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs text-slate-300">Diffusion Artifact Probability:</span>
+                    <span id="ai-image-score" class="text-sm font-bold font-mono text-cyan-400">--</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="ai-image-meter" class="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-500" style="width: 0%"></div>
+                  </div>
+                  <div id="ai-image-evidence" class="text-xs text-slate-400 mt-3"></div>
+                </div>
+
+                <!-- EXIF Camera Hardware & Date -->
+                <div class="cyber-card">
+                  <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-camera"></i> Hardware & Software Metadata
+                  </h4>
+                  <div id="image-exif-details" class="text-xs text-slate-300 space-y-1.5 font-mono"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: VIDEO FORENSICS -->
+          <div id="tab-video" class="tab-pane hidden space-y-5">
+            <!-- Keyframe AI Timeline Chart -->
+            <div class="cyber-card">
+              <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-chart-line"></i> Keyframe AI Detection Timeline (Sampled Frames)
+              </h4>
+              <div class="h-64 w-full">
+                <canvas id="video-frames-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- Top Flagged Frames -->
+            <div class="cyber-card">
+              <h4 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-images"></i> Top Flagged Suspicious Keyframes
+              </h4>
+              <div id="video-flagged-frames" class="grid sm:grid-cols-3 gap-4"></div>
+            </div>
+          </div>
+
+          <!-- TAB 4: AUDIO FORENSICS -->
+          <div id="tab-audio" class="tab-pane hidden space-y-5">
+            <!-- Spectrogram & Waveform Visuals -->
+            <div class="grid md:grid-cols-2 gap-5">
+              <div class="cyber-card">
+                <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">
+                  <i class="fa-solid fa-wave-square mr-1.5"></i> Time-Domain Amplitude Waveform
+                </h4>
+                <div class="rounded-lg overflow-hidden border border-white/10 aspect-video flex items-center justify-center bg-black/40 relative">
+                  <img id="audio-waveform-img" class="w-full h-full object-contain hidden" src="" alt="Waveform" onerror="this.classList.add('hidden'); document.getElementById('audio-waveform-placeholder')?.classList.remove('hidden');">
+                  <div id="audio-waveform-placeholder" class="text-xs text-slate-500 font-mono flex flex-col items-center gap-1.5 p-4 text-center">
+                    <i class="fa-solid fa-wave-square text-2xl text-slate-600 mb-1"></i>
+                    <span>No waveform artifact available</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cyber-card">
+                <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">
+                  <i class="fa-solid fa-bars-staggered mr-1.5"></i> Log-Power Acoustic Spectrogram
+                </h4>
+                <div class="rounded-lg overflow-hidden border border-white/10 aspect-video flex items-center justify-center bg-black/40 relative">
+                  <img id="audio-spectrogram-img" class="w-full h-full object-contain hidden" src="" alt="Spectrogram" onerror="this.classList.add('hidden'); document.getElementById('audio-spectrogram-placeholder')?.classList.remove('hidden');">
+                  <div id="audio-spectrogram-placeholder" class="text-xs text-slate-500 font-mono flex flex-col items-center gap-1.5 p-4 text-center">
+                    <i class="fa-solid fa-bars-staggered text-2xl text-slate-600 mb-1"></i>
+                    <span>No spectrogram artifact available</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acoustic Heuristics Table -->
+            <div class="cyber-card">
+              <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                <span><i class="fa-solid fa-microchip mr-1.5"></i> Acoustic Heuristics Status</span>
+                <span class="text-[10px] text-amber-400 font-mono"><i class="fa-solid fa-circle-exclamation mr-1"></i> Heuristics Only (Hard Capped at MODERATE)</span>
+              </h4>
+              <div id="audio-heuristics-list" class="space-y-2.5"></div>
+            </div>
+
+            <!-- Spoken Dialogue Transcript -->
+            <div class="cyber-card">
+              <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-quote-left"></i> Spoken Dialogue Transcript (Whisper)
+              </h4>
+              <div id="audio-transcript-text" class="text-xs text-slate-300 font-mono bg-slate-900/60 p-3 rounded border border-white/5">
+                No dialogue detected.
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 5: TEXT & CONTEXT -->
+          <div id="tab-text" class="tab-pane hidden space-y-5">
+            <!-- Summary Callout Box -->
+            <div id="text-summary-box" class="cyber-card border-l-4 border-l-cyan-400 bg-cyan-950/20">
+              <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1.5 flex items-center gap-2">
+                <i class="fa-solid fa-magnifying-glass"></i> Plain-English Context Summary
+              </h4>
+              <p id="text-summary-content" class="text-xs text-slate-200 leading-relaxed mb-2.5"></p>
+              <div id="text-summary-breakdown" class="text-[11px] font-mono text-slate-400 flex items-center gap-3"></div>
+            </div>
+
+            <!-- Original & Translated Caption -->
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="cyber-card">
+                <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Provided Caption</div>
+                <div id="text-orig-caption" class="text-xs text-slate-200 font-medium"></div>
+              </div>
+              <div class="cyber-card">
+                <div class="text-[10px] uppercase font-bold text-slate-400 mb-1 flex items-center justify-between">
+                  <span>English Translation</span>
+                  <span id="text-det-lang" class="text-cyan-400 font-mono lowercase"></span>
+                </div>
+                <div id="text-trans-caption" class="text-xs text-slate-200 font-medium"></div>
+              </div>
+            </div>
+
+            <!-- Grounded Claim Table -->
+            <div class="cyber-card overflow-hidden">
+              <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-table-list"></i> Grounded Atomic Claims Table
+              </h4>
+              <div class="overflow-x-auto">
+                <table class="cyber-table">
+                  <thead>
+                    <tr>
+                      <th>Claim ID</th>
+                      <th>Claim</th>
+                      <th>Type</th>
+                      <th class="text-center">Status</th>
+                      <th>Evidence IDs</th>
+                      <th>Forensic Reason</th>
+                      <th class="text-right">Confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody id="text-claims-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- What We Looked At (Evidence Bundle) & What We Could Not Check -->
+            <div class="grid md:grid-cols-2 gap-5">
+              <!-- Evidence Bundle -->
+              <div class="cyber-card">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <i class="fa-solid fa-binoculars text-cyan-400"></i> What We Looked At (Evidence Bundle)
+                </h4>
+                <div id="text-evidence-bundle" class="text-xs text-slate-400 space-y-1.5 max-h-56 overflow-y-auto"></div>
+              </div>
+
+              <!-- What We Could NOT Check (OSINT Required) -->
+              <div class="cyber-card border-amber-500/20 bg-amber-500/5">
+                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <i class="fa-solid fa-user-ninja"></i> What We Could NOT Check (OSINT Required)
+                </h4>
+                <div id="text-unverifiable-list" class="text-xs text-slate-300 space-y-2"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 6: CROSS-MODAL CORRELATION -->
+          <div id="tab-corr" class="tab-pane hidden space-y-5">
+            <div class="cyber-card">
+              <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-diagram-project"></i> Compounded Multi-Signal Findings
+              </h3>
+              <div id="cross-modal-findings-list" class="space-y-3"></div>
+            </div>
+          </div>
+
+          <!-- TAB 7: DOSSIER & EXPORT -->
+          <div id="tab-report" class="tab-pane hidden space-y-5">
+            <div class="grid md:grid-cols-2 gap-5">
+              <div class="cyber-card flex flex-col justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i> Forensic PDF Dossier
+                  </h4>
+                  <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                    Complete standalone multi-page investigative dossier including signal status breakdown, ELA heatmap captures, and cryptographic checksums.
+                  </p>
+                </div>
+                <a id="btn-download-pdf" href="#" target="_blank" download class="btn-primary text-xs py-2.5 px-4 w-full flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-download"></i> Download Official PDF Dossier
+                </a>
+              </div>
+
+              <div class="cyber-card flex flex-col justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-code"></i> Cryptographic JSON Bundle
+                  </h4>
+                  <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                    Machine-verifiable JSON containing complete signal telemetry, CaseManager audit trails, and SHA-256 provenance hashes.
+                  </p>
+                </div>
+                <a id="btn-download-json" href="#" target="_blank" download class="btn-secondary text-xs py-2.5 px-4 w-full flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-file-code"></i> Download Machine-Readable JSON
+                </a>
+              </div>
+            </div>
+
+            <!-- SHA-256 Hashes Table -->
+            <div class="cyber-card">
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-fingerprint"></i> Evidence Provenance & Cryptographic Hashes
+              </h4>
+              <div id="input-hashes-list" class="space-y-1.5 font-mono text-xs text-slate-300"></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==============================================================================
+       FULL-SCREEN SPINNER OVERLAY
+       ============================================================================== -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="spinner mb-4"></div>
+    <div id="loading-stage" class="text-sm font-bold font-mono tracking-wider text-cyan-400">
+      ANALYZING DIGITAL EVIDENCE...
+    </div>
+    <div class="text-xs text-slate-400 mt-2 font-mono">
+      Evaluating compression, temporal consistency, and grounded claims
+    </div>
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
