@@ -1,21 +1,60 @@
 /**
- * TruthLens Cyber Forensics Client Application (app.js)
- * High-performance, zero-lag client-side controller.
+ * TruthLens Cyber Forensics Command Deck Controller (app.js)
+ * High-performance, zero-lag client-side controller with live telemetry.
  */
 
 let activeCaseData = null;
 let videoChartInstance = null;
+let activeClaimFilter = "all";
 
 document.addEventListener("DOMContentLoaded", () => {
+  setupUtcClock();
   setupTabs();
   setupDropzones();
   setupCaptionCounter();
   setupFormSubmission();
   setupDemoButtons();
+  setupClaimFilters();
 });
 
 // ==============================================================================
-// TAB NAVIGATION (0ms Lag Client-Side Switching)
+// 1. LIVE HUD UTC CLOCK
+// ==============================================================================
+function setupUtcClock() {
+  const clockEl = document.getElementById("live-utc-clock");
+  function tick() {
+    const now = new Date();
+    const h = String(now.getUTCHours()).padStart(2, "0");
+    const m = String(now.getUTCMinutes()).padStart(2, "0");
+    const s = String(now.getUTCSeconds()).padStart(2, "0");
+    if (clockEl) {
+      clockEl.textContent = `${h}:${m}:${s} UTC`;
+    }
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// Quick Sample Caption Injector
+window.setCaption = function (text) {
+  const input = document.getElementById("caption-input");
+  if (input) {
+    input.value = text;
+    input.dispatchEvent(new Event("input"));
+    input.focus();
+  }
+};
+
+// Quick Sensor Chip Tab Switcher
+window.switchTab = function (tabId) {
+  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (btn) {
+    btn.click();
+  }
+};
+
+// ==============================================================================
+// 2. TAB NAVIGATION (0ms Lag Client-Side Switching)
 // ==============================================================================
 function setupTabs() {
   const tabBtns = document.querySelectorAll(".tab-btn");
@@ -23,11 +62,11 @@ function setupTabs() {
     btn.addEventListener("click", () => {
       const targetId = btn.getAttribute("data-tab");
 
-      // Active button
+      // Active button styling
       tabBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
-      // Active panel
+      // Active panel visibility
       document.querySelectorAll(".tab-pane").forEach((pane) => {
         pane.classList.add("hidden");
       });
@@ -40,7 +79,7 @@ function setupTabs() {
 }
 
 // ==============================================================================
-// DRAG & DROP FILE STAGING & CLIENT PREVIEWS
+// 3. DRAG & DROP FILE STAGING
 // ==============================================================================
 function setupDropzones() {
   // Image
@@ -136,7 +175,7 @@ function setupCaptionCounter() {
 }
 
 // ==============================================================================
-// DEMO BUTTONS
+// 4. SCENARIO / DEMO LAUNCHERS
 // ==============================================================================
 function setupDemoButtons() {
   document.getElementById("btn-demo-case1").addEventListener("click", () => {
@@ -161,7 +200,7 @@ function resetWorkspace() {
 }
 
 // ==============================================================================
-// API DISPATCHER & FORM SUBMISSION
+// 5. API DISPATCHER & FORM SUBMISSION
 // ==============================================================================
 function setupFormSubmission() {
   const form = document.getElementById("forensic-form");
@@ -174,11 +213,11 @@ function setupFormSubmission() {
     const captionText = document.getElementById("caption-input").value.trim();
 
     if (!imgFile && !vidFile && !audFile && !captionText) {
-      alert("Please stage at least one media asset (image, video, audio) or type a caption claim.");
+      alert("Please stage at least one media asset (image, video, audio) or type a contextual claim.");
       return;
     }
 
-    showLoading("EXECUTING MULTIMODAL FORENSICS...");
+    showLoading("EXECUTING MULTIMODAL FORENSIC AUDIT...");
 
     const formData = new FormData();
     if (imgFile) formData.append("image", imgFile);
@@ -194,7 +233,7 @@ function setupFormSubmission() {
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.detail || "Investigation failed.");
+        throw new Error(err.detail || "Investigation execution failed.");
       }
 
       const data = await response.json();
@@ -208,11 +247,11 @@ function setupFormSubmission() {
 }
 
 async function loadDemoCase(caseId) {
-  showLoading(`LOADING PRE-COMPUTED DOSSIER (${caseId})...`);
+  showLoading(`INITIALIZING PRE-COMPUTED SCENARIO DOSSIER (${caseId})...`);
   try {
     const res = await fetch(`/api/demo/${caseId}`);
     if (!res.ok) {
-      throw new Error("Failed to load demo case.");
+      throw new Error("Failed to load scenario case.");
     }
     const data = await res.json();
     renderCaseData(data);
@@ -233,7 +272,7 @@ function hideLoading() {
 }
 
 // ==============================================================================
-// RENDER FORENSIC DASHBOARD
+// 6. RENDER MISSION CONTROL FORENSIC DASHBOARD
 // ==============================================================================
 function renderCaseData(data) {
   activeCaseData = data;
@@ -243,119 +282,199 @@ function renderCaseData(data) {
   const confidence = indicator.confidence || 0.0;
   const artifacts = data.artifacts || {};
 
-  // Switch views
+  // Switch from Welcome State to Mission Control
   document.getElementById("welcome-state").classList.add("hidden");
   document.getElementById("case-dashboard").classList.remove("hidden");
 
   // Hero Verdict Elements
-  document.getElementById("case-id-display").textContent = data.case_id || "DEMO";
+  document.getElementById("case-id-display").textContent = data.case_id || "ACTIVE-CASE";
   const modeBadge = document.getElementById("case-mode-badge");
   if (data.source_mode === "demo") {
-    modeBadge.textContent = "DEMO CASE";
+    modeBadge.textContent = "SCENARIO DOSSIER";
     modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
   } else {
-    modeBadge.textContent = "LIVE UPLOAD";
+    modeBadge.textContent = "LIVE INGESTION";
     modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
   }
 
-  // Verdict Risk Badge
-  const tierCont = document.getElementById("verdict-tier-badge");
-  let tierClass = "badge-low";
-  let icon = "fa-circle-check";
-  let barColor = "#10b981";
-
+  // Verdict Tier Badge
+  const tierContainer = document.getElementById("verdict-tier-badge");
   if (level === "ELEVATED") {
-    tierClass = "badge-elevated";
-    icon = "fa-circle-exclamation";
-    barColor = "#ef4444";
+    tierContainer.innerHTML = `<span class="badge-tier badge-elevated"><i class="fa-solid fa-triangle-exclamation"></i> ELEVATED RISK</span>`;
   } else if (level === "MODERATE") {
-    tierClass = "badge-moderate";
-    icon = "fa-triangle-exclamation";
-    barColor = "#f59e0b";
+    tierContainer.innerHTML = `<span class="badge-tier badge-moderate"><i class="fa-solid fa-circle-exclamation"></i> MODERATE RISK</span>`;
+  } else {
+    tierContainer.innerHTML = `<span class="badge-tier badge-low"><i class="fa-solid fa-shield-check"></i> LOW SUSPICION</span>`;
   }
 
-  tierCont.innerHTML = `<span class="badge-tier ${tierClass}"><i class="fa-solid ${icon}"></i> ${level} RISK</span>`;
+  // Radial HUD Meter (Circumference = 2 * PI * 42 = ~264)
+  const confPct = Math.round(confidence * 100);
+  const radialBar = document.getElementById("radial-progress-bar");
+  const radialText = document.getElementById("radial-percentage-text");
+  if (radialBar && radialText) {
+    const totalCircumference = 264;
+    const offset = totalCircumference - (totalCircumference * (confidence || 0.5));
+    radialBar.style.strokeDashoffset = offset;
+    radialText.textContent = `${confPct}%`;
+  }
 
-  // Confidence Meter
-  document.getElementById("confidence-percentage").textContent = `${Math.round(confidence * 100)}%`;
-  const meterBar = document.getElementById("confidence-meter-bar");
-  meterBar.style.width = `${Math.round(confidence * 100)}%`;
-  meterBar.style.backgroundColor = barColor;
+  // Update Sensor Array Strip
+  updateSensorArray(report, data.text_analysis);
 
-  // Render Tabs
-  renderOverviewTab(report, level);
+  // Render All Tabs
+  renderOverviewTab(report);
   renderImageTab(report, artifacts);
   renderVideoTab(report, artifacts);
   renderAudioTab(report, artifacts);
   renderTextTab(report, data.text_analysis, artifacts);
   renderCorrelationTab(report);
   renderReportTab(data);
-
-  // Default to Overview Tab
-  document.querySelector('.tab-btn[data-tab="tab-overview"]').click();
 }
 
+// Quick Sensor Array Telemetry Strip
+function updateSensorArray(report, textAnalysis) {
+  const signals = report.signals || [];
+  
+  // ELA
+  const ela = signals.find((s) => s.signal_id === "img_ela_001");
+  const elaEl = document.getElementById("chip-ela");
+  if (ela && ela.score !== null) {
+    elaEl.textContent = `${(ela.score * 100).toFixed(0)}%`;
+    elaEl.className = ela.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-cyan-400";
+  } else {
+    elaEl.textContent = "N/A";
+    elaEl.className = "font-mono text-xs font-bold text-slate-500";
+  }
+
+  // AI Detector
+  const ai = signals.find((s) => s.signal_id === "img_ai_001");
+  const aiEl = document.getElementById("chip-ai-img");
+  if (ai && ai.score !== null) {
+    aiEl.textContent = `${(ai.score * 100).toFixed(0)}%`;
+    aiEl.className = ai.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-cyan-400";
+  } else {
+    aiEl.textContent = "N/A";
+    aiEl.className = "font-mono text-xs font-bold text-slate-500";
+  }
+
+  // Video Keyframes
+  const vid = signals.find((s) => s.signal_id === "vid_ai_001");
+  const vidEl = document.getElementById("chip-video");
+  if (vid && vid.score !== null) {
+    vidEl.textContent = `${(vid.score * 100).toFixed(0)}%`;
+    vidEl.className = vid.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-cyan-400";
+  } else {
+    vidEl.textContent = "N/A";
+    vidEl.className = "font-mono text-xs font-bold text-slate-500";
+  }
+
+  // Audio Acoustics
+  const audSignals = signals.filter((s) => s.modality === "audio");
+  const audEl = document.getElementById("chip-audio");
+  if (audSignals.length > 0) {
+    const validScores = audSignals.map((s) => s.score).filter((sc) => sc !== null && sc !== undefined);
+    const avg = validScores.length ? validScores.reduce((a, b) => a + b, 0) / validScores.length : 0;
+    audEl.textContent = `${(avg * 100).toFixed(0)}%`;
+    audEl.className = avg >= 0.35 ? "font-mono text-xs font-bold text-amber-400" : "font-mono text-xs font-bold text-emerald-400";
+  } else {
+    audEl.textContent = "N/A";
+    audEl.className = "font-mono text-xs font-bold text-slate-500";
+  }
+
+  // Context Claims
+  const claimsEl = document.getElementById("chip-claims");
+  if (textAnalysis && textAnalysis.counts) {
+    const c = textAnalysis.counts;
+    if (c.contradicted > 0) {
+      claimsEl.textContent = `${c.contradicted} Conflicts`;
+      claimsEl.className = "font-mono text-xs font-bold text-red-400";
+    } else {
+      claimsEl.textContent = `${c.supported || 0} Verified`;
+      claimsEl.className = "font-mono text-xs font-bold text-emerald-400";
+    }
+  } else {
+    claimsEl.textContent = "SKIPPED";
+    claimsEl.className = "font-mono text-xs font-bold text-slate-500";
+  }
+}
+
+// ==============================================================================
+// 7. TAB RENDERERS
+// ==============================================================================
+
 // 1. OVERVIEW TAB
-function renderOverviewTab(report, level) {
+function renderOverviewTab(report) {
+  const summaryEl = document.getElementById("overview-summary-text");
+  summaryEl.textContent =
+    report.summary ||
+    "Multimodal audit concluded. Cross-signal correlation verified against tamper indicators and baseline integrity thresholds.";
+
+  // Primary Drivers (>= 0.35)
+  const driversContainer = document.getElementById("primary-drivers-list");
   const signals = report.signals || [];
   const primaryDrivers = signals.filter((s) => s.score !== null && s.score >= 0.35);
-  primaryDrivers.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-  const unremarkable = signals.filter((s) => s.score !== null && s.score < 0.35);
-
-  // Executive Summary
-  const summaryBox = document.getElementById("overview-summary-text");
-  let summaryText = "";
-  if (level === "ELEVATED") {
-    summaryText = `Multimodal digital forensics flags <b>ELEVATED</b> tampering risk based on ${primaryDrivers.length} significant anomaly driver(s). Compounding signals indicate intentional alteration or fabrication.`;
-  } else if (level === "MODERATE") {
-    summaryText = `Multimodal forensics detected <b>MODERATE</b> risk indicators. Anomaly signals suggest potential out-of-context misattribution or selective editing.`;
-  } else {
-    summaryText = `Forensic analysis found <b>LOW</b> indication of tampering. Examined physical and cryptographic baselines remain within normal capture tolerances.`;
-  }
-  summaryBox.innerHTML = summaryText;
-
-  // Primary Drivers List
-  const driversList = document.getElementById("primary-drivers-list");
   if (primaryDrivers.length === 0) {
-    driversList.innerHTML = `<div class="text-xs text-slate-400">No signals exceeded the 0.35 suspicion threshold.</div>`;
+    driversContainer.innerHTML = `
+      <div class="text-xs text-slate-400 py-3 font-mono bg-slate-900/40 p-3 rounded border border-white/5">
+        <i class="fa-solid fa-shield-check text-emerald-400 mr-1.5"></i>
+        No primary suspicion drivers detected. All evaluated signals remain below the 0.35 threshold.
+      </div>
+    `;
   } else {
-    driversList.innerHTML = primaryDrivers
+    driversContainer.innerHTML = primaryDrivers
       .map(
         (s) => `
-      <div class="p-2.5 rounded bg-red-950/20 border border-red-500/20 text-xs">
-        <div class="flex items-center justify-between font-bold text-red-300 mb-1">
-          <span>${s.name}</span>
-          <span class="font-mono bg-red-500/20 px-2 py-0.5 rounded text-[11px]">${s.score.toFixed(2)}</span>
+      <div class="p-3 rounded-lg bg-red-950/25 border border-red-500/25 text-xs space-y-1">
+        <div class="flex items-center justify-between font-hud">
+          <span class="font-bold text-red-300">${s.name}</span>
+          <span class="font-mono text-red-400 font-extrabold px-2 py-0.5 rounded bg-red-900/40">Score: ${s.score.toFixed(2)}</span>
         </div>
-        <div class="text-slate-300 leading-relaxed">${s.evidence}</div>
+        <div class="text-slate-300 font-sans">${s.evidence}</div>
+        <div class="text-[10px] text-slate-400 font-mono"><b class="text-slate-500">Limitation:</b> ${s.limitation}</div>
       </div>
     `
       )
       .join("");
   }
 
-  // Unremarkable Checks List
-  const unremList = document.getElementById("unremarkable-checks-list");
+  // Unremarkable Checks (< 0.35)
+  const unremContainer = document.getElementById("unremarkable-checks-list");
+  const unremarkable = signals.filter((s) => s.score === null || s.score < 0.35);
+
   if (unremarkable.length === 0) {
-    unremList.innerHTML = `<div>All tested signals fired.</div>`;
+    unremContainer.innerHTML = `<div>No unremarkable baseline checks recorded.</div>`;
   } else {
-    unremList.innerHTML = unremarkable
+    unremContainer.innerHTML = unremarkable
+      .map((s) => {
+        const scoreLabel = s.score !== null ? `Score: ${s.score.toFixed(2)}` : "SKIPPED";
+        return `
+        <div class="flex items-center justify-between py-1.5 border-b border-white/5">
+          <span class="text-slate-300 font-medium">${s.name}</span>
+          <span class="font-mono text-[11px] text-emerald-400">${scoreLabel}</span>
+        </div>
+      `;
+      })
+      .join("");
+  }
+
+  // Recommended Checks with interactive checklist
+  const checksContainer = document.getElementById("recommended-checks-list");
+  const checks = report.recommended_human_checks || [];
+  if (checks.length === 0) {
+    checksContainer.innerHTML = `<li>No secondary human OSINT checks flagged.</li>`;
+  } else {
+    checksContainer.innerHTML = checks
       .map(
-        (s) => `
-      <div class="flex items-center justify-between py-1 border-b border-white/5">
-        <span>${s.name} (${s.modality})</span>
-        <span class="font-mono text-emerald-400 font-semibold">${s.score.toFixed(2)}</span>
-      </div>
+        (c) => `
+      <li class="flex items-start gap-2">
+        <input type="checkbox" class="mt-1 accent-amber-400 rounded cursor-pointer">
+        <span>${c}</span>
+      </li>
     `
       )
       .join("");
   }
-
-  // Recommended Checks
-  const checksList = document.getElementById("recommended-checks-list");
-  const humanChecks = report.recommended_human_checks || [];
-  checksList.innerHTML = humanChecks.map((c) => `<li>${c}</li>`).join("");
 }
 
 // 2. IMAGE TAB
@@ -416,13 +535,11 @@ function renderVideoTab(report, artifacts) {
   const vidSignals = (report.signals || []).filter((s) => s.modality === "video");
   const vidAiSig = vidSignals.find((s) => s.signal_id === "vid_ai_001");
 
-  // Destroy previous Chart if exists
   if (videoChartInstance) {
     videoChartInstance.destroy();
     videoChartInstance = null;
   }
 
-  // Render dummy / extracted curve
   const canvas = document.getElementById("video-frames-chart");
   if (canvas) {
     const ctx = canvas.getContext("2d");
@@ -436,13 +553,15 @@ function renderVideoTab(report, artifacts) {
         labels: labels,
         datasets: [
           {
-            label: "AI Detector Confidence",
+            label: "AI Detector Probability",
             data: dataPoints,
             borderColor: "#00d2ff",
-            backgroundColor: "rgba(0, 210, 255, 0.1)",
+            backgroundColor: "rgba(0, 210, 255, 0.12)",
             fill: true,
-            tension: 0.3,
+            tension: 0.35,
             borderWidth: 2,
+            pointBackgroundColor: "#00d2ff",
+            pointRadius: 4,
           },
         ],
       },
@@ -450,19 +569,18 @@ function renderVideoTab(report, artifacts) {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          y: { min: 0, max: 1, grid: { color: "rgba(255,255,255,0.05)" } },
-          x: { grid: { color: "rgba(255,255,255,0.05)" } },
+          y: { min: 0, max: 1, grid: { color: "rgba(255,255,255,0.06)" } },
+          x: { grid: { color: "rgba(255,255,255,0.06)" } },
         },
       },
     });
   }
 
-  // Top Flagged Frames
   const gallery = document.getElementById("video-flagged-frames");
   if (vidAiSig && vidAiSig.evidence) {
     gallery.innerHTML = `
-      <div class="cyber-card p-3 text-xs bg-slate-900 border-red-500/20">
-        <div class="font-bold text-red-400 mb-1">Flagged Keyframe</div>
+      <div class="cyber-card p-3 text-xs bg-slate-900 border-red-500/25">
+        <div class="font-bold text-red-400 mb-1 font-hud">Flagged Keyframe</div>
         <p class="text-slate-300 font-mono">${vidAiSig.evidence}</p>
       </div>
     `;
@@ -475,7 +593,6 @@ function renderVideoTab(report, artifacts) {
 function renderAudioTab(report, artifacts) {
   const audSignals = (report.signals || []).filter((s) => s.modality === "audio");
 
-  // Waveform & Spectrogram Embeds
   const waveImg = document.getElementById("audio-waveform-img");
   const wavePlaceholder = document.getElementById("audio-waveform-placeholder");
   const specImg = document.getElementById("audio-spectrogram-img");
@@ -489,7 +606,6 @@ function renderAudioTab(report, artifacts) {
     if (k.includes("spectrogram")) specUrl = v;
   }
 
-  // Waveform display
   if (waveUrl) {
     waveImg.src = waveUrl;
     waveImg.classList.remove("hidden");
@@ -500,7 +616,6 @@ function renderAudioTab(report, artifacts) {
     if (wavePlaceholder) wavePlaceholder.classList.remove("hidden");
   }
 
-  // Spectrogram display
   if (specUrl) {
     specImg.src = specUrl;
     specImg.classList.remove("hidden");
@@ -511,7 +626,6 @@ function renderAudioTab(report, artifacts) {
     if (specPlaceholder) specPlaceholder.classList.remove("hidden");
   }
 
-  // Heuristics List
   const heurList = document.getElementById("audio-heuristics-list");
   if (audSignals.length === 0) {
     heurList.innerHTML = `<div class="text-xs text-slate-500">No audio track evaluated.</div>`;
@@ -522,7 +636,7 @@ function renderAudioTab(report, artifacts) {
         return `
         <div class="p-3 rounded bg-slate-900/60 border border-white/5 text-xs flex items-start justify-between gap-4">
           <div>
-            <div class="font-bold text-slate-200 mb-1">${s.name}</div>
+            <div class="font-bold text-slate-200 mb-1 font-hud">${s.name}</div>
             <div class="text-slate-400 text-[11px] leading-relaxed">${s.evidence}</div>
           </div>
           <div class="font-mono text-cyan-400 font-bold px-2 py-0.5 rounded bg-slate-800 shrink-0">
@@ -535,12 +649,11 @@ function renderAudioTab(report, artifacts) {
   }
 }
 
-// 5. TEXT & CONTEXT TAB
+// 5. TEXT & CONTEXT TAB (WITH CATEGORY FILTERING)
 function renderTextTab(report, textAnalysis, artifacts) {
   const txtAnalysis = textAnalysis || {};
   const comparisons = txtAnalysis.comparisons || [];
 
-  // Plain English Summary Box
   document.getElementById("text-summary-content").textContent =
     txtAnalysis.summary_text || "Contextual claim verification completed against available grounded facts.";
 
@@ -552,39 +665,11 @@ function renderTextTab(report, textAnalysis, artifacts) {
     <span class="text-slate-400 font-bold"><i class="fa-solid fa-circle-question"></i> ${counts.cannot_verify || 0} Cannot Verify</span>
   `;
 
-  // Captions
   document.getElementById("text-orig-caption").textContent = txtAnalysis.original_caption || "None provided";
   document.getElementById("text-trans-caption").textContent = txtAnalysis.english_translation || txtAnalysis.original_caption || "None";
   document.getElementById("text-det-lang").textContent = `(${txtAnalysis.detected_language || "English"})`;
 
-  // Claim Table
-  const tbody = document.getElementById("text-claims-tbody");
-  if (comparisons.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-slate-500 py-4">No atomic claims extracted (empty or skipped).</td></tr>`;
-  } else {
-    tbody.innerHTML = comparisons
-      .map((c) => {
-        let badgeColor = "bg-slate-700 text-slate-300";
-        if (c.status === "supported") badgeColor = "bg-emerald-600/80 text-white";
-        if (c.status === "contradicted") badgeColor = "bg-red-600/80 text-white";
-
-        const evStr = c.evidence_ids && c.evidence_ids.length > 0 ? c.evidence_ids.join(", ") : "none";
-        const confPct = c.confidence ? `${Math.round(c.confidence * 100)}%` : "50%";
-
-        return `
-        <tr>
-          <td class="font-mono font-bold text-cyan-400">${c.claim_id}</td>
-          <td class="font-medium text-slate-200">${c.claim_text}</td>
-          <td><code class="text-[11px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">${c.type}</code></td>
-          <td class="text-center"><span class="px-2 py-0.5 rounded text-[11px] font-bold font-mono ${badgeColor}">${c.status}</span></td>
-          <td class="font-mono text-xs text-slate-400">${evStr}</td>
-          <td class="text-xs text-slate-300">${c.reason}</td>
-          <td class="text-right font-mono font-bold text-slate-400">${confPct}</td>
-        </tr>
-      `;
-      })
-      .join("");
-  }
+  renderFilteredClaims(comparisons);
 
   // Evidence Bundle
   const bundleList = document.getElementById("text-evidence-bundle");
@@ -597,7 +682,7 @@ function renderTextTab(report, textAnalysis, artifacts) {
         (ev) => `
       <div class="py-1 border-b border-white/5">
         <b class="text-cyan-400 font-mono">[${ev.id}]</b> <span class="text-slate-500 font-mono text-[10px]">(${ev.source})</span>: 
-        <span class="text-slate-300">${ev.text}</span>
+        <span class="text-slate-300 font-sans">${ev.text}</span>
       </div>
     `
       )
@@ -614,14 +699,73 @@ function renderTextTab(report, textAnalysis, artifacts) {
       .map(
         (uv) => `
       <div class="p-2 rounded bg-amber-950/20 border border-amber-500/20 text-xs">
-        <div class="font-bold text-amber-300">"${uv.claim_text}" (${uv.type})</div>
+        <div class="font-bold text-amber-300 font-hud">"${uv.claim_text}" (${uv.type})</div>
         <div class="text-slate-300 mt-0.5"><b>Why:</b> ${uv.reason}</div>
-        <div class="text-cyan-300 mt-0.5"><b>Human OSINT Check:</b> ${uv.human_check}</div>
+        <div class="text-cyan-300 mt-0.5 font-mono"><b>Human Check:</b> ${uv.human_check}</div>
       </div>
     `
       )
       .join("");
   }
+}
+
+// Category Filtering for Grounded Claims Table
+function setupClaimFilters() {
+  const filterBtns = document.querySelectorAll("#claim-filters button");
+  filterBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach((b) => {
+        b.className = "px-2.5 py-1 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-white/5";
+      });
+      btn.className = "px-2.5 py-1 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 filter-active";
+      activeClaimFilter = btn.getAttribute("data-filter");
+
+      if (activeCaseData && activeCaseData.text_analysis) {
+        renderFilteredClaims(activeCaseData.text_analysis.comparisons || []);
+      }
+    });
+  });
+}
+
+function renderFilteredClaims(comparisons) {
+  const tbody = document.getElementById("text-claims-tbody");
+  if (!comparisons || comparisons.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-slate-500 py-4">No atomic claims extracted (empty or skipped).</td></tr>`;
+    return;
+  }
+
+  const filtered = comparisons.filter((c) => {
+    if (activeClaimFilter === "all") return true;
+    return c.status === activeClaimFilter;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-slate-500 py-4">No claims match the filter "${activeClaimFilter}".</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered
+    .map((c) => {
+      let badgeClass = "bg-slate-700/80 text-slate-300 border border-slate-600";
+      if (c.status === "supported") badgeClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+      if (c.status === "contradicted") badgeClass = "bg-red-500/20 text-red-400 border border-red-500/40";
+
+      const evStr = c.evidence_ids && c.evidence_ids.length > 0 ? c.evidence_ids.join(", ") : "none";
+      const confPct = c.confidence ? `${Math.round(c.confidence * 100)}%` : "50%";
+
+      return `
+      <tr>
+        <td class="font-mono font-bold text-cyan-400">${c.claim_id}</td>
+        <td class="font-medium text-slate-200">${c.claim_text}</td>
+        <td><code class="text-[11px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">${c.type}</code></td>
+        <td class="text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase ${badgeClass}">${c.status}</span></td>
+        <td class="font-mono text-xs text-slate-400">${evStr}</td>
+        <td class="text-xs text-slate-300">${c.reason}</td>
+        <td class="text-right font-mono font-bold text-slate-400">${confPct}</td>
+      </tr>
+    `;
+    })
+    .join("");
 }
 
 // 6. CORRELATION TAB
@@ -641,12 +785,12 @@ function renderCorrelationTab(report) {
         return `
         <div class="cyber-card p-4">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${badgeClass}">
+            <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${badgeClass} font-hud">
               ${f.effect}
             </span>
             <div class="flex items-center gap-1">${cites}</div>
           </div>
-          <p class="text-xs text-slate-200 leading-relaxed">${f.finding}</p>
+          <p class="text-xs text-slate-200 leading-relaxed font-sans">${f.finding}</p>
         </div>
       `;
       })
@@ -670,7 +814,7 @@ function renderReportTab(data) {
     jsonBtn.href = data.json_url;
   }
 
-  // Hashes
+  // Hashes with 1-click copy
   const hashesList = document.getElementById("input-hashes-list");
   const hashes = data.input_hashes || {};
   if (Object.keys(hashes).length === 0) {
@@ -679,9 +823,14 @@ function renderReportTab(data) {
     hashesList.innerHTML = Object.entries(hashes)
       .map(
         ([fname, h]) => `
-      <div class="flex items-center justify-between py-1 border-b border-white/5">
-        <span class="text-slate-400">${fname}:</span>
-        <span class="text-cyan-400">${h}</span>
+      <div class="flex items-center justify-between py-1.5 border-b border-white/5">
+        <span class="text-slate-400 truncate max-w-xs">${fname}:</span>
+        <div class="flex items-center gap-2">
+          <span class="text-cyan-400 font-mono text-[11px] truncate max-w-sm">${h}</span>
+          <button type="button" class="text-slate-500 hover:text-cyan-400 text-xs" onclick="navigator.clipboard.writeText('${h}')" title="Copy Hash">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+        </div>
       </div>
     `
       )

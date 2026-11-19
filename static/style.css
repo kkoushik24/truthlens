@@ -1,26 +1,30 @@
 /* ==============================================================================
-   TruthLens Cyber Forensics Workstation Theme (style.css)
+   TruthLens Cyber Forensics Command Deck - Elite Styling (style.css)
+   Aesthetic: Palantir / Cyberpunk / Tactical Intelligence Workstation
    ============================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg-dark: #070b14;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-card-hover: rgba(30, 41, 59, 0.85);
-  --border-card: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(0, 210, 255, 0.4);
+  --bg-space: #050811;
+  --bg-deck: #090e1a;
+  --bg-card: rgba(13, 20, 36, 0.75);
+  --bg-card-hover: rgba(20, 31, 56, 0.85);
+  --border-subtle: rgba(0, 210, 255, 0.12);
+  --border-neon: rgba(0, 210, 255, 0.45);
   --primary: #00d2ff;
-  --primary-glow: rgba(0, 210, 255, 0.35);
-  --text-main: #f8fafc;
+  --primary-glow: rgba(0, 210, 255, 0.4);
+  --secondary: #3b82f6;
+  --accent: #8b5cf6;
+  --text-main: #f1f5f9;
   --text-muted: #94a3b8;
-  --text-dim: #64748b;
-  --elevated: #ef4444;
-  --elevated-glow: rgba(239, 68, 68, 0.4);
-  --moderate: #f59e0b;
-  --moderate-glow: rgba(245, 158, 11, 0.4);
-  --low: #10b981;
-  --low-glow: rgba(16, 185, 129, 0.4);
+  --text-dim: #475569;
+  --danger: #ef4444;
+  --danger-glow: rgba(239, 68, 68, 0.45);
+  --warning: #f59e0b;
+  --warning-glow: rgba(245, 158, 11, 0.45);
+  --success: #10b981;
+  --success-glow: rgba(16, 185, 129, 0.45);
 }
 
 * {
@@ -31,14 +35,21 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--bg-dark);
+  background-color: var(--bg-space);
   color: var(--text-main);
   line-height: 1.5;
   overflow-x: hidden;
   background-image: 
-    radial-gradient(circle at 15% 15%, rgba(0, 210, 255, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.04) 0%, transparent 40%);
+    radial-gradient(circle at 10% 10%, rgba(0, 210, 255, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(139, 92, 246, 0.05) 0%, transparent 45%),
+    linear-gradient(rgba(5, 8, 17, 0.94), rgba(5, 8, 17, 0.94)),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 210, 255, 0.015) 2px, rgba(0, 210, 255, 0.015) 4px);
   background-attachment: fixed;
+}
+
+.font-hud {
+  font-family: 'Chakra Petch', sans-serif !important;
+  letter-spacing: 0.05em;
 }
 
 code, pre, .font-mono {
@@ -47,101 +58,184 @@ code, pre, .font-mono {
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+  background: var(--bg-space);
 }
 ::-webkit-scrollbar-thumb {
   background: #1e293b;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
 }
 
-/* Glassmorphic Cyber Panels */
+/* Tactical Glassmorphic Cards */
 .cyber-card {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-neon), transparent);
+  opacity: 0.5;
+}
+
+.cyber-card-interactive {
+  cursor: pointer;
 }
 
 .cyber-card-interactive:hover {
-  border-color: var(--border-focus);
-  box-shadow: 0 6px 24px var(--primary-glow);
+  border-color: var(--border-neon);
+  box-shadow: 0 8px 32px var(--primary-glow);
   transform: translateY(-2px);
+  background: var(--bg-card-hover);
 }
 
-/* Hero Verdict Badges with Glowing Effects */
+/* HUD Topbar Styling */
+.hud-header {
+  background: rgba(9, 14, 26, 0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 210, 255, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* Glowing Tactical Badges */
 .badge-tier {
-  padding: 5px 14px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.88rem;
-  letter-spacing: 0.5px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   text-transform: uppercase;
+  font-family: 'Chakra Petch', sans-serif;
 }
 
 .badge-elevated {
-  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-  color: white;
-  box-shadow: 0 0 16px var(--elevated-glow);
+  background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+  color: #fff;
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 20px var(--danger-glow);
 }
 
 .badge-moderate {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-  box-shadow: 0 0 16px var(--moderate-glow);
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+  color: #fff;
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 20px var(--warning-glow);
 }
 
 .badge-low {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  box-shadow: 0 0 16px var(--low-glow);
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  color: #fff;
+  border: 1px solid rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 20px var(--success-glow);
 }
 
-/* Nav Tabs */
+/* Tactical Sensor Matrix Chip */
+.sensor-chip {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sensor-chip:hover {
+  border-color: var(--primary);
+  background: rgba(0, 210, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Navigation Tabs */
 .tab-btn {
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding: 12px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Chakra Petch', sans-serif;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tab-btn:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 210, 255, 0.04);
 }
 
 .tab-btn.active {
   color: var(--primary);
   border-bottom-color: var(--primary);
-  background: rgba(0, 210, 255, 0.06);
+  background: rgba(0, 210, 255, 0.08);
+  text-shadow: 0 0 12px var(--primary-glow);
 }
 
-/* Primary Neon Buttons */
+/* Neon Tactical Buttons */
 .btn-primary {
-  background: linear-gradient(135deg, #00d2ff 0%, #0072ff 100%);
-  color: white;
-  font-weight: 700;
-  border: none;
+  background: linear-gradient(135deg, #00d2ff 0%, #0066ff 100%);
+  color: #030712;
+  font-weight: 800;
+  font-family: 'Chakra Petch', sans-serif;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(0, 210, 255, 0.6);
   border-radius: 8px;
-  padding: 10px 20px;
-  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.35);
+  padding: 12px 24px;
+  box-shadow: 0 4px 20px var(--primary-glow);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-transform: uppercase;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(0, 210, 255, 0.7);
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  font-weight: 700;
+  font-family: 'Chakra Petch', sans-serif;
+  letter-spacing: 0.04em;
+  border-radius: 8px;
+  padding: 9px 18px;
   transition: all 0.2s ease;
   cursor: pointer;
   display: inline-flex;
@@ -150,51 +244,53 @@ code, pre, .font-mono {
   gap: 8px;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(0, 210, 255, 0.55);
-}
-
-.btn-secondary {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-main);
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 8px 16px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
 .btn-secondary:hover {
-  background: rgba(51, 65, 85, 0.9);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(30, 41, 59, 0.9);
+  border-color: var(--primary);
+  box-shadow: 0 0 14px rgba(0, 210, 255, 0.25);
 }
 
-/* File Drop Zones */
+/* Interactive Dropzones */
 .dropzone {
-  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border: 2px dashed rgba(0, 210, 255, 0.2);
   border-radius: 10px;
-  padding: 16px;
+  padding: 18px;
   text-align: center;
-  background: rgba(15, 23, 42, 0.4);
-  transition: all 0.2s ease;
+  background: rgba(10, 16, 30, 0.6);
+  transition: all 0.25s ease;
   cursor: pointer;
+  position: relative;
 }
 
 .dropzone:hover, .dropzone.dragover {
   border-color: var(--primary);
-  background: rgba(0, 210, 255, 0.05);
+  background: rgba(0, 210, 255, 0.08);
+  box-shadow: 0 0 16px rgba(0, 210, 255, 0.2);
 }
 
-/* Pulse Animation for Live Engine */
+/* Prompt Sample Pill */
+.sample-pill {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.sample-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(0, 210, 255, 0.08);
+}
+
+/* Pulsing LEDs */
 @keyframes pulseGlow {
   0% { transform: scale(0.95); opacity: 0.6; }
-  50% { transform: scale(1.05); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 8px currentColor); }
   100% { transform: scale(0.95); opacity: 0.6; }
 }
 
@@ -202,8 +298,8 @@ code, pre, .font-mono {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #10b981;
-  box-shadow: 0 0 10px #10b981;
+  background-color: var(--success);
+  color: var(--success);
   animation: pulseGlow 2s infinite ease-in-out;
 }
 
@@ -211,8 +307,8 @@ code, pre, .font-mono {
 .loading-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 11, 20, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(5, 8, 17, 0.92);
+  backdrop-filter: blur(12px);
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -220,13 +316,15 @@ code, pre, .font-mono {
   justify-content: center;
 }
 
-.spinner {
-  width: 55px;
-  height: 55px;
-  border: 4px solid rgba(0, 210, 255, 0.15);
+.radar-spinner {
+  width: 70px;
+  height: 70px;
+  border: 3px solid rgba(0, 210, 255, 0.15);
   border-top-color: var(--primary);
+  border-right-color: var(--accent);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 0.7s linear infinite;
+  box-shadow: 0 0 25px rgba(0, 210, 255, 0.35);
 }
 
 @keyframes spin {
@@ -238,24 +336,53 @@ code, pre, .font-mono {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .cyber-table th {
-  background: rgba(30, 41, 59, 0.6);
+  background: rgba(15, 23, 42, 0.85);
   color: var(--text-muted);
-  font-weight: 600;
+  font-family: 'Chakra Petch', sans-serif;
+  letter-spacing: 0.05em;
+  font-weight: 700;
   text-align: left;
   padding: 12px 14px;
-  border-bottom: 2px solid var(--border-card);
+  border-bottom: 2px solid rgba(0, 210, 255, 0.2);
 }
 
 .cyber-table td {
   padding: 12px 14px;
-  border-bottom: 1px solid var(--border-card);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--text-main);
+  vertical-align: middle;
 }
 
 .cyber-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 210, 255, 0.03);
+}
+
+/* Radial Gauge Styling */
+.radial-meter {
+  position: relative;
+  width: 90px;
+  height: 90px;
+}
+
+.radial-meter svg {
+  transform: rotate(-90deg);
+}
+
+.radial-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 6;
+}
+
+.radial-progress {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+  filter: drop-shadow(0 0 6px var(--primary-glow));
 }
