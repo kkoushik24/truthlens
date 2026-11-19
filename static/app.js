@@ -291,10 +291,10 @@ function renderCaseData(data) {
   const modeBadge = document.getElementById("case-mode-badge");
   if (data.source_mode === "demo") {
     modeBadge.textContent = "SCENARIO DOSSIER";
-    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-sky-50 text-sky-700 border border-sky-200";
   } else {
     modeBadge.textContent = "LIVE INGESTION";
-    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200";
   }
 
   // Verdict Tier Badge
@@ -416,8 +416,8 @@ function renderOverviewTab(report) {
 
   if (primaryDrivers.length === 0) {
     driversContainer.innerHTML = `
-      <div class="text-xs text-slate-400 py-3 font-mono bg-slate-900/40 p-3 rounded border border-white/5">
-        <i class="fa-solid fa-shield-check text-emerald-400 mr-1.5"></i>
+      <div class="text-xs text-slate-600 py-3 font-mono bg-slate-50 p-3 rounded-xl border border-slate-200">
+        <i class="fa-solid fa-shield-check text-emerald-600 mr-1.5"></i>
         No primary suspicion drivers detected. All evaluated signals remain below the 0.35 threshold.
       </div>
     `;
@@ -425,13 +425,13 @@ function renderOverviewTab(report) {
     driversContainer.innerHTML = primaryDrivers
       .map(
         (s) => `
-      <div class="p-3 rounded-lg bg-red-950/25 border border-red-500/25 text-xs space-y-1">
+      <div class="p-3 rounded-xl bg-rose-50/60 border border-rose-200 text-xs space-y-1">
         <div class="flex items-center justify-between font-hud">
-          <span class="font-bold text-red-300">${s.name}</span>
-          <span class="font-mono text-red-400 font-extrabold px-2 py-0.5 rounded bg-red-900/40">Score: ${s.score.toFixed(2)}</span>
+          <span class="font-bold text-rose-800">${s.name}</span>
+          <span class="font-mono text-rose-700 font-extrabold px-2 py-0.5 rounded-full bg-rose-100">Score: ${s.score.toFixed(2)}</span>
         </div>
-        <div class="text-slate-300 font-sans">${s.evidence}</div>
-        <div class="text-[10px] text-slate-400 font-mono"><b class="text-slate-500">Limitation:</b> ${s.limitation}</div>
+        <div class="text-slate-700 font-sans">${s.evidence}</div>
+        <div class="text-[10px] text-slate-500 font-mono"><b class="text-slate-600">Limitation:</b> ${s.limitation}</div>
       </div>
     `
       )
@@ -634,12 +634,12 @@ function renderAudioTab(report, artifacts) {
       .map((s) => {
         const scoreStr = s.score !== null ? s.score.toFixed(2) : "N/A";
         return `
-        <div class="p-3 rounded bg-slate-900/60 border border-white/5 text-xs flex items-start justify-between gap-4">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-start justify-between gap-4">
           <div>
-            <div class="font-bold text-slate-200 mb-1 font-hud">${s.name}</div>
-            <div class="text-slate-400 text-[11px] leading-relaxed">${s.evidence}</div>
+            <div class="font-bold text-slate-900 mb-1 font-hud">${s.name}</div>
+            <div class="text-slate-600 text-[11px] leading-relaxed">${s.evidence}</div>
           </div>
-          <div class="font-mono text-cyan-400 font-bold px-2 py-0.5 rounded bg-slate-800 shrink-0">
+          <div class="font-mono text-sky-700 font-bold px-2 py-0.5 rounded-full bg-sky-100/60 shrink-0">
             ${scoreStr}
           </div>
         </div>
@@ -715,9 +715,9 @@ function setupClaimFilters() {
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       filterBtns.forEach((b) => {
-        b.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-white/5";
+        b.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-100 text-slate-600 border border-slate-200";
       });
-      btn.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 filter-active";
+      btn.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-sky-100 text-sky-700 border border-sky-300 filter-active";
       activeClaimFilter = btn.getAttribute("data-filter");
 
       if (activeCaseData && activeCaseData.text_analysis) {
@@ -746,22 +746,22 @@ function renderFilteredClaims(comparisons) {
 
   tbody.innerHTML = filtered
     .map((c) => {
-      let badgeClass = "bg-slate-700/80 text-slate-300 border border-slate-600";
-      if (c.status === "supported") badgeClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
-      if (c.status === "contradicted") badgeClass = "bg-red-500/20 text-red-400 border border-red-500/40";
+      let badgeClass = "bg-slate-100 text-slate-600 border border-slate-200";
+      if (c.status === "supported") badgeClass = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+      if (c.status === "contradicted") badgeClass = "bg-rose-50 text-rose-700 border border-rose-200";
 
       const evStr = c.evidence_ids && c.evidence_ids.length > 0 ? c.evidence_ids.join(", ") : "none";
       const confPct = c.confidence ? `${Math.round(c.confidence * 100)}%` : "50%";
 
       return `
       <tr>
-        <td class="font-mono font-bold text-cyan-400">${c.claim_id}</td>
-        <td class="font-medium text-slate-200">${c.claim_text}</td>
-        <td><code class="text-[11px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">${c.type}</code></td>
+        <td class="font-mono font-bold text-sky-700">${c.claim_id}</td>
+        <td class="font-medium text-slate-900">${c.claim_text}</td>
+        <td><code class="text-[11px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">${c.type}</code></td>
         <td class="text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase ${badgeClass}">${c.status}</span></td>
-        <td class="font-mono text-xs text-slate-400">${evStr}</td>
-        <td class="text-xs text-slate-300">${c.reason}</td>
-        <td class="text-right font-mono font-bold text-slate-400">${confPct}</td>
+        <td class="font-mono text-xs text-slate-500">${evStr}</td>
+        <td class="text-xs text-slate-600">${c.reason}</td>
+        <td class="text-right font-mono font-bold text-slate-500">${confPct}</td>
       </tr>
     `;
     })
@@ -779,13 +779,13 @@ function renderCorrelationTab(report) {
     list.innerHTML = findings
       .map((f) => {
         const isStrengthen = f.effect === "strengthens";
-        const badgeClass = isStrengthen ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-        const cites = (f.supporting_signals || []).map((s) => `<span class="font-mono bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-cyan-400">${s}</span>`).join(" ");
+        const badgeClass = isStrengthen ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-emerald-50 text-emerald-700 border-emerald-200";
+        const cites = (f.supporting_signals || []).map((s) => `<span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[10px] text-sky-700">${s}</span>`).join(" ");
 
         return `
-        <div class="cyber-card p-4">
+        <div class="cyber-card p-4 bg-white border border-slate-200">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${badgeClass} font-hud">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${badgeClass} font-hud">
               ${f.effect}
             </span>
             <div class="flex items-center gap-1">${cites}</div>
