@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="min-h-screen flex flex-col bg-[#050811] text-slate-100">
+<body class="min-h-screen flex flex-col">
 
   <!-- ==============================================================================
        TACTICAL HUD HEADER
@@ -20,7 +20,7 @@
   <header class="hud-header sticky top-0 z-50 px-5 py-3 flex items-center justify-between">
     <!-- Brand / System Title -->
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/25 border border-cyan-400/40">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/25 border border-cyan-400/40">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
       <div>
@@ -28,7 +28,7 @@
           <span class="font-hud font-extrabold text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300">
             TRUTHLENS OS
           </span>
-          <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+          <span class="px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
             v2.4 FORENSIC
           </span>
         </div>
@@ -40,10 +40,10 @@
       </div>
     </div>
 
-    <!-- Active Telemetry & Quick Scenario Selectors -->
+    <!-- Active Telemetry & Quick Scenario Selectors + Theme Switcher -->
     <div class="flex items-center gap-3">
       <!-- Engine Pulse Chip -->
-      <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0c1322] border border-cyan-500/20 text-xs text-slate-300 font-mono">
+      <div class="hidden xl:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0c1322] border border-cyan-500/20 text-xs text-slate-300 font-mono">
         <span class="pulse-indicator"></span>
         <span>NEURAL ENGINE ARMED</span>
         <span class="text-slate-600">|</span>
@@ -59,6 +59,16 @@
           <i class="fa-solid fa-circle-check text-emerald-400"></i> Scenario 2: Wildlife Photo
         </button>
       </div>
+
+      <!-- Theme Switcher Pill -->
+      <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Light/Dark Theme">
+        <span class="theme-toggle-track">
+          <i class="fa-solid fa-moon theme-icon-moon"></i>
+          <i class="fa-solid fa-sun theme-icon-sun"></i>
+          <span class="theme-toggle-thumb"></span>
+        </span>
+        <span id="theme-label" class="text-xs font-hud font-bold hidden sm:inline tracking-wider">DARK</span>
+      </button>
     </div>
   </header>
 
@@ -68,7 +78,7 @@
   <div class="flex-1 flex flex-col lg:flex-row">
 
     <!-- LEFT PANEL: EVIDENCE STAGING VAULT -->
-    <aside class="w-full lg:w-96 bg-[#080d19] border-r border-cyan-500/15 p-5 flex flex-col gap-4 overflow-y-auto shrink-0 shadow-2xl z-20">
+    <aside class="vault-sidebar w-full lg:w-96 p-5 flex flex-col gap-4 overflow-y-auto shrink-0 shadow-2xl z-20">
       
       <!-- Vault Header -->
       <div class="flex items-center justify-between border-b border-cyan-500/15 pb-3">
