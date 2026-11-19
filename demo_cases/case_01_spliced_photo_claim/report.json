@@ -1,0 +1,168 @@
+{
+  "case_id": "DEMO-2026-ELEVATED",
+  "inputs": [
+    "claim.txt",
+    "edited_photo.jpg"
+  ],
+  "input_hashes": {
+    "edited_photo.jpg": "93448ea3ceea7072019abce417177f749859a6640b8532d69bdf2403e96a3ca4",
+    "claim.txt": "d80097701f8b2348b518ff1e565b6a797281ac489a57571b306a4f3cc8e78d58"
+  },
+  "signals": [
+    {
+      "signal_id": "img_exif_001",
+      "modality": "image",
+      "name": "EXIF Metadata Audit",
+      "score": 0.75,
+      "evidence": "Image metadata explicitly records editing software tag: 'Adobe Photoshop 2024' (matched: photoshop, adobe). Camera hardware tags (Make/Model) are missing despite other EXIF blocks being present. Capture timestamp recorded: 2026:01:01 10:00:00.",
+      "location": null,
+      "limitation": "EXIF metadata can be trivially edited, forged, or stripped using standard command-line tools. Presence of editing software can indicate harmless cropping or color correction rather than malicious forgery.",
+      "source_file": "edited_photo.jpg"
+    },
+    {
+      "signal_id": "img_ela_001",
+      "modality": "image",
+      "name": "Error Level Analysis (ELA) Compression Divergence",
+      "score": 0.8079,
+      "evidence": "One area of the image compresses differently from the rest. This can happen when something is edited in, but it also happens naturally on detailed textures. Weak evidence on its own.",
+      "location": {
+        "type": "region",
+        "bbox": [
+          266,
+          11,
+          320,
+          54
+        ]
+      },
+      "limitation": "ELA is unreliable on lossless/PNG files and on fully AI-generated images, which are often uniformly compressed.",
+      "source_file": "edited_photo.jpg"
+    },
+    {
+      "signal_id": "img_ai_001",
+      "modality": "image",
+      "name": "AI Image Generator Detection",
+      "score": 0.2559,
+      "evidence": "No indicators found by this check: image texture and pixel distribution show standard camera capture patterns. Model score: 26% AI probability.",
+      "location": null,
+      "limitation": "Pretrained synthetic vision detectors may produce false positives on stylized or heavily compressed photos.",
+      "source_file": "edited_photo.jpg"
+    },
+    {
+      "signal_id": "txt_heur_001",
+      "modality": "text",
+      "name": "Caption Linguistic Integrity",
+      "score": 0.7,
+      "evidence": "Caption utilizes sensationalist certainty markers designed to bypass critical scrutiny: [undeniable proof].",
+      "location": null,
+      "limitation": "Heuristic linguistic checks detect sensationalism and chronological anomalies, but cannot verify whether a factually true story was simply reported with hyperbolic phrasing.",
+      "source_file": "caption.txt"
+    },
+    {
+      "signal_id": "txt_plaus_001",
+      "modality": "text",
+      "name": "Visual Plausibility & Physics Audit",
+      "score": null,
+      "evidence": "FAILED: Invalid JSON from Groq Vision model: Connection error.",
+      "location": null,
+      "limitation": "Model response was not valid JSON after retry.",
+      "source_file": "edited_photo.jpg"
+    },
+    {
+      "signal_id": "txt_vis_match_001",
+      "modality": "text",
+      "name": "Possible out-of-context use",
+      "score": 0.8,
+      "evidence": "The text claims 'Undeniable proof: Alien spacecraft spotted in downtown Miami in 2024!', but the image shows Analyzed visual asset 'edited_photo.jpg'.. Contradictions were detected in: Extraordinary extraterrestrial entity claim without corroboration.. Strong indicator of false context or misattribution.",
+      "location": null,
+      "limitation": "A vision model can misread an image. A mismatch here means the caption deserves checking, not that the media is manipulated.",
+      "source_file": "edited_photo.jpg"
+    }
+  ],
+  "cross_modal_findings": [
+    {
+      "finding": "Visual indicators (img_exif_001, img_ela_001) and textual context (txt_heur_001, txt_vis_match_001) both point toward manipulation, reinforcing each other.",
+      "supporting_signals": [
+        "img_exif_001",
+        "img_ela_001",
+        "txt_heur_001",
+        "txt_vis_match_001"
+      ],
+      "effect": "strengthens"
+    }
+  ],
+  "overall_indicator": {
+    "level": "elevated",
+    "confidence": 0.83,
+    "warnings": [
+      "Result based on limited signals: Visual Plausibility & Physics Audit did not run.",
+      "Floor rule enforced: Multiple independent signals (img_exif_001, img_ela_001, txt_heur_001, txt_vis_match_001) scored >= 0.60; level set to ELEVATED."
+    ],
+    "primary_drivers": [
+      "img_ela_001",
+      "txt_vis_match_001",
+      "img_exif_001"
+    ]
+  },
+  "limitations": [
+    "Result based on limited signals: Visual Plausibility & Physics Audit did not run.",
+    "Floor rule enforced: Multiple independent signals (img_exif_001, img_ela_001, txt_heur_001, txt_vis_match_001) scored >= 0.60; level set to ELEVATED.",
+    "A detection score is an INDICATOR of possible modification, NEVER a definitive verdict of forgery or manipulation.",
+    "Social media platforms, messaging applications, and Content Delivery Networks (CDNs) routinely strip EXIF metadata, re-compress images (JPEG quantization), and transcode video/audio (H.264/AAC), which can produce artificial tampering signals on unmodified footage.",
+    "Pretrained neural network classifiers (AI image and synthetic voice detectors) exhibit high sensitivity to lossy compression, resizing filters, and acoustic reverb, which can inflate false positive rates.",
+    "Vision-language models evaluating caption context can occasionally hallucinate visual facts or misread small multilingual signage.",
+    "Error Level Analysis (ELA) inherently registers higher error rates on high-frequency visual textures (e.g. hair, foliage, sharp text) than on smooth gradients (e.g. skies)."
+  ],
+  "recommended_human_checks": [
+    "Perform Reverse Image / Video Keyframe Search on Google Lens, TinEye, and Yandex to determine the earliest online timestamp and origin of the visual asset.",
+    "Request the original, uncompressed camera file (RAW / DNG / initial camera container) directly from the primary source to inspect camera-firmware cryptographic signatures.",
+    "Verify geographic setting and weather conditions using historical satellite imagery (e.g. Google Earth, Sentinel) and meteorological logs for the claimed date and location.",
+    "Conduct open-source intelligence (OSINT) cross-verification against reputable local news outlets and eyewitness accounts corresponding to the claimed event.",
+    "Inspect low-level hexadecimal and XMP editing history blocks using ExifTool to identify the exact application and operating system that generated the file."
+  ],
+  "history": [
+    {
+      "time": "2026-11-19T15:22:04.337345+00:00",
+      "action": "Case DEMO-2026-ELEVATED initialized."
+    },
+    {
+      "time": "2026-11-19T15:22:04.342386+00:00",
+      "action": "Original file 'edited_photo.jpg' stored with SHA-256: 93448ea3ceea..."
+    },
+    {
+      "time": "2026-11-19T15:22:04.343254+00:00",
+      "action": "Original file 'claim.txt' stored with SHA-256: d80097701f8b..."
+    },
+    {
+      "time": "2026-11-19T15:22:04.366911+00:00",
+      "action": "Image EXIF analysis completed for edited_photo.jpg (score: 0.75)."
+    },
+    {
+      "time": "2026-11-19T15:22:04.432952+00:00",
+      "action": "Image ELA analysis completed for edited_photo.jpg (score: 0.8079, bbox: type='region' bbox=[266, 11, 320, 54])."
+    },
+    {
+      "time": "2026-11-19T15:22:30.411167+00:00",
+      "action": "Image AI detector completed for edited_photo.jpg (score: 0.2559)."
+    },
+    {
+      "time": "2026-11-19T15:22:30.411430+00:00",
+      "action": "Caption linguistic audit completed (score: 0.7)."
+    },
+    {
+      "time": "2026-11-19T15:22:33.940566+00:00",
+      "action": "Visual plausibility audit completed for edited_photo.jpg (score: None)."
+    },
+    {
+      "time": "2026-11-19T15:22:33.941132+00:00",
+      "action": "Caption-vs-media alignment evaluated for edited_photo.jpg (score: 0.8)."
+    },
+    {
+      "time": "2026-11-19T15:22:33.945439+00:00",
+      "action": "Rule-based correlation calculated overall indicator: ELEVATED (confidence: 83%)."
+    },
+    {
+      "time": "2026-11-19T15:22:35.686568+00:00",
+      "action": "Cross-modal reasoning completed with 1 validated findings."
+    }
+  ]
+}

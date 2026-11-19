@@ -1,0 +1,162 @@
+{
+  "case_id": "DEMO-2026-AUTHENTIC",
+  "inputs": [
+    "caption.txt",
+    "clean_photo.jpg",
+    "natural_audio.wav"
+  ],
+  "input_hashes": {
+    "clean_photo.jpg": "3cfd4aecf059978795c009edb32ef3d622b6ad81ea9b620c4807bc38237f994c",
+    "caption.txt": "99a5e8eee88981eb523002e8168ced577d29cb5cd3356252a4eeff6a4f131121"
+  },
+  "signals": [
+    {
+      "signal_id": "img_exif_001",
+      "modality": "image",
+      "name": "EXIF Metadata Audit",
+      "score": 0.1,
+      "evidence": "Camera hardware identified: Canon Canon EOS 80D. Capture timestamp recorded: 2024:05:12 14:32:00.",
+      "location": null,
+      "limitation": "EXIF metadata can be trivially edited, forged, or stripped using standard command-line tools. Presence of editing software can indicate harmless cropping or color correction rather than malicious forgery.",
+      "source_file": "clean_photo.jpg"
+    },
+    {
+      "signal_id": "img_ela_001",
+      "modality": "image",
+      "name": "Error Level Analysis (ELA) Compression Divergence",
+      "score": 0.7078,
+      "evidence": "One area of the image compresses differently from the rest. This can happen when something is edited in, but it also happens naturally on detailed textures. Weak evidence on its own.",
+      "location": {
+        "type": "region",
+        "bbox": [
+          228,
+          23,
+          285,
+          66
+        ]
+      },
+      "limitation": "ELA is unreliable on lossless/PNG files and on fully AI-generated images, which are often uniformly compressed.",
+      "source_file": "clean_photo.jpg"
+    },
+    {
+      "signal_id": "img_ai_001",
+      "modality": "image",
+      "name": "AI Image Generator Detection",
+      "score": 0.0965,
+      "evidence": "No indicators found by this check: image texture and pixel distribution show standard camera capture patterns. Model score: 10% AI probability.",
+      "location": null,
+      "limitation": "Pretrained synthetic vision detectors may produce false positives on stylized or heavily compressed photos.",
+      "source_file": "clean_photo.jpg"
+    },
+    {
+      "signal_id": "txt_heur_001",
+      "modality": "text",
+      "name": "Caption Linguistic Integrity",
+      "score": 0.15,
+      "evidence": "Caption phrasing uses neutral descriptive language without manipulative absolute markers.",
+      "location": null,
+      "limitation": "Heuristic linguistic checks detect sensationalism and chronological anomalies, but cannot verify whether a factually true story was simply reported with hyperbolic phrasing.",
+      "source_file": "caption.txt"
+    },
+    {
+      "signal_id": "txt_plaus_001",
+      "modality": "text",
+      "name": "Visual Plausibility & Physics Audit",
+      "score": null,
+      "evidence": "FAILED: Invalid JSON from Groq Vision model: Connection error.",
+      "location": null,
+      "limitation": "Model response was not valid JSON after retry.",
+      "source_file": "clean_photo.jpg"
+    },
+    {
+      "signal_id": "txt_vis_match_001",
+      "modality": "text",
+      "name": "Possible out-of-context use",
+      "score": 0.2,
+      "evidence": "The visual scene (Analyzed visual asset 'clean_photo.jpg'.) aligns with the provided caption. The caption matches what is visible. This does not show the media is unedited.",
+      "location": null,
+      "limitation": "A vision model can misread an image. A mismatch here means the caption deserves checking, not that the media is manipulated.",
+      "source_file": "clean_photo.jpg"
+    }
+  ],
+  "cross_modal_findings": [
+    {
+      "finding": "Multiple indicators (img_ela_001) show anomalies inconsistent with standard capture.",
+      "supporting_signals": [
+        "img_ela_001"
+      ],
+      "effect": "strengthens"
+    }
+  ],
+  "overall_indicator": {
+    "level": "low",
+    "confidence": 0.83,
+    "warnings": [
+      "Result based on limited signals: Visual Plausibility & Physics Audit did not run."
+    ],
+    "primary_drivers": [
+      "img_ela_001"
+    ]
+  },
+  "limitations": [
+    "Result based on limited signals: Visual Plausibility & Physics Audit did not run.",
+    "A detection score is an INDICATOR of possible modification, NEVER a definitive verdict of forgery or manipulation.",
+    "Social media platforms, messaging applications, and Content Delivery Networks (CDNs) routinely strip EXIF metadata, re-compress images (JPEG quantization), and transcode video/audio (H.264/AAC), which can produce artificial tampering signals on unmodified footage.",
+    "Pretrained neural network classifiers (AI image and synthetic voice detectors) exhibit high sensitivity to lossy compression, resizing filters, and acoustic reverb, which can inflate false positive rates.",
+    "Vision-language models evaluating caption context can occasionally hallucinate visual facts or misread small multilingual signage.",
+    "Error Level Analysis (ELA) inherently registers higher error rates on high-frequency visual textures (e.g. hair, foliage, sharp text) than on smooth gradients (e.g. skies)."
+  ],
+  "recommended_human_checks": [
+    "Perform Reverse Image / Video Keyframe Search on Google Lens, TinEye, and Yandex to determine the earliest online timestamp and origin of the visual asset.",
+    "Request the original, uncompressed camera file (RAW / DNG / initial camera container) directly from the primary source to inspect camera-firmware cryptographic signatures.",
+    "Verify geographic setting and weather conditions using historical satellite imagery (e.g. Google Earth, Sentinel) and meteorological logs for the claimed date and location.",
+    "Conduct open-source intelligence (OSINT) cross-verification against reputable local news outlets and eyewitness accounts corresponding to the claimed event.",
+    "Inspect low-level hexadecimal and XMP editing history blocks using ExifTool to identify the exact application and operating system that generated the file."
+  ],
+  "history": [
+    {
+      "time": "2026-11-19T15:22:35.744597+00:00",
+      "action": "Case DEMO-2026-AUTHENTIC initialized."
+    },
+    {
+      "time": "2026-11-19T15:22:35.747060+00:00",
+      "action": "Original file 'clean_photo.jpg' stored with SHA-256: 3cfd4aecf059..."
+    },
+    {
+      "time": "2026-11-19T15:22:35.747944+00:00",
+      "action": "Original file 'caption.txt' stored with SHA-256: 99a5e8eee889..."
+    },
+    {
+      "time": "2026-11-19T15:22:35.749102+00:00",
+      "action": "Image EXIF analysis completed for clean_photo.jpg (score: 0.1)."
+    },
+    {
+      "time": "2026-11-19T15:22:35.761161+00:00",
+      "action": "Image ELA analysis completed for clean_photo.jpg (score: 0.7078, bbox: type='region' bbox=[228, 23, 285, 66])."
+    },
+    {
+      "time": "2026-11-19T15:22:36.032868+00:00",
+      "action": "Image AI detector completed for clean_photo.jpg (score: 0.0965)."
+    },
+    {
+      "time": "2026-11-19T15:22:36.032979+00:00",
+      "action": "Caption linguistic audit completed (score: 0.15)."
+    },
+    {
+      "time": "2026-11-19T15:22:39.228125+00:00",
+      "action": "Visual plausibility audit completed for clean_photo.jpg (score: None)."
+    },
+    {
+      "time": "2026-11-19T15:22:39.228784+00:00",
+      "action": "Caption-vs-media alignment evaluated for clean_photo.jpg (score: 0.2)."
+    },
+    {
+      "time": "2026-11-19T15:22:39.231163+00:00",
+      "action": "Rule-based correlation calculated overall indicator: LOW (confidence: 83%)."
+    },
+    {
+      "time": "2026-11-19T15:22:40.867271+00:00",
+      "action": "Cross-modal reasoning completed with 1 validated findings."
+    }
+  ]
+}
