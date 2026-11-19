@@ -8,7 +8,6 @@ let videoChartInstance = null;
 let activeClaimFilter = "all";
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupThemeToggle();
   setupUtcClock();
   setupTabs();
   setupDropzones();
@@ -17,49 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupDemoButtons();
   setupClaimFilters();
 });
-
-// ==============================================================================
-// 0. THEME SWITCHER (Dark & Light Mode with LocalStorage Persistence)
-// ==============================================================================
-function setupThemeToggle() {
-  const toggleBtn = document.getElementById("theme-toggle");
-  const themeLabel = document.getElementById("theme-label");
-
-  // Load saved theme or default to 'dark'
-  let savedTheme = "dark";
-  try {
-    savedTheme = localStorage.getItem("truthlens_theme") || "dark";
-  } catch (e) {
-    savedTheme = "dark";
-  }
-  applyTheme(savedTheme);
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", () => {
-      const currentTheme = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      applyTheme(newTheme);
-      try {
-        localStorage.setItem("truthlens_theme", newTheme);
-      } catch (e) {}
-    });
-  }
-
-  function applyTheme(theme) {
-    if (theme === "light") {
-      document.documentElement.setAttribute("data-theme", "light");
-      if (themeLabel) themeLabel.textContent = "LIGHT";
-    } else {
-      document.documentElement.removeAttribute("data-theme");
-      if (themeLabel) themeLabel.textContent = "DARK";
-    }
-
-    // Refresh video chart if active so its axes colors update cleanly
-    if (videoChartInstance && activeCaseData) {
-      renderVideoTab(activeCaseData);
-    }
-  }
-}
 
 // ==============================================================================
 // 1. LIVE HUD UTC CLOCK
@@ -134,10 +90,7 @@ function setupDropzones() {
   const promptImg = document.getElementById("prompt-img");
   const clearImg = document.getElementById("clear-img");
 
-  dropImg.addEventListener("click", (e) => {
-    if (e.target === inputImg) return;
-    inputImg.click();
-  });
+  dropImg.addEventListener("click", () => inputImg.click());
   inputImg.addEventListener("change", (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -166,10 +119,7 @@ function setupDropzones() {
   const nameVid = document.getElementById("name-vid");
   const clearVid = document.getElementById("clear-vid");
 
-  dropVid.addEventListener("click", (e) => {
-    if (e.target === inputVid) return;
-    inputVid.click();
-  });
+  dropVid.addEventListener("click", () => inputVid.click());
   inputVid.addEventListener("change", (e) => {
     if (e.target.files && e.target.files[0]) {
       nameVid.textContent = e.target.files[0].name;
@@ -193,10 +143,7 @@ function setupDropzones() {
   const nameAud = document.getElementById("name-aud");
   const clearAud = document.getElementById("clear-aud");
 
-  dropAud.addEventListener("click", (e) => {
-    if (e.target === inputAud) return;
-    inputAud.click();
-  });
+  dropAud.addEventListener("click", () => inputAud.click());
   inputAud.addEventListener("change", (e) => {
     if (e.target.files && e.target.files[0]) {
       nameAud.textContent = e.target.files[0].name;
@@ -314,7 +261,6 @@ async function loadDemoCase(caseId) {
     hideLoading();
   }
 }
-window.loadDemoCase = loadDemoCase;
 
 function showLoading(msg) {
   document.getElementById("loading-stage").textContent = msg;
@@ -601,10 +547,6 @@ function renderVideoTab(report, artifacts) {
     const baseScore = vidAiSig && vidAiSig.score !== null ? vidAiSig.score : 0.2;
     const dataPoints = labels.map((_, i) => Math.min(1.0, Math.max(0.05, baseScore + (i % 2 === 0 ? 0.05 : -0.05))));
 
-    const isLight = document.documentElement.getAttribute("data-theme") === "light";
-    const gridColor = isLight ? "rgba(0,0,0,0.07)" : "rgba(255,255,255,0.06)";
-    const tickColor = isLight ? "#475569" : "#94a3b8";
-
     videoChartInstance = new Chart(ctx, {
       type: "line",
       data: {
@@ -613,12 +555,12 @@ function renderVideoTab(report, artifacts) {
           {
             label: "AI Detector Probability",
             data: dataPoints,
-            borderColor: isLight ? "#0284c7" : "#00e5ff",
-            backgroundColor: isLight ? "rgba(2, 132, 199, 0.12)" : "rgba(0, 229, 255, 0.15)",
+            borderColor: "#00d2ff",
+            backgroundColor: "rgba(0, 210, 255, 0.12)",
             fill: true,
             tension: 0.35,
             borderWidth: 2,
-            pointBackgroundColor: isLight ? "#0284c7" : "#00e5ff",
+            pointBackgroundColor: "#00d2ff",
             pointRadius: 4,
           },
         ],
@@ -626,22 +568,9 @@ function renderVideoTab(report, artifacts) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            labels: { color: tickColor, font: { family: "'Plus Jakarta Sans', sans-serif" } },
-          },
-        },
         scales: {
-          y: { 
-            min: 0, 
-            max: 1, 
-            grid: { color: gridColor },
-            ticks: { color: tickColor }
-          },
-          x: { 
-            grid: { color: gridColor },
-            ticks: { color: tickColor }
-          },
+          y: { min: 0, max: 1, grid: { color: "rgba(255,255,255,0.06)" } },
+          x: { grid: { color: "rgba(255,255,255,0.06)" } },
         },
       },
     });
