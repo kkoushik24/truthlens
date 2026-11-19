@@ -37,9 +37,5 @@ RUN mkdir -p /tmp/truthlens_mpl cases demo_cases artifacts static && \
 # Expose default HTTP port
 EXPOSE 8000
 
-# Healthcheck to monitor app availability
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl --fail http://localhost:8000/ || exit 1
-
-# Launch production FastAPI server
-ENTRYPOINT ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+# Launch production FastAPI server with dynamic PORT support
+CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port ${PORT:-8000}"]
