@@ -57,6 +57,13 @@ def serve_index():
     return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
 
 
+@app.get("/health")
+@app.get("/api/health")
+def health_check():
+    """Health check endpoint for cloud hosting platforms like Render."""
+    return {"status": "ok", "service": "TruthLens Forensic Workstation"}
+
+
 # ==============================================================================
 # DEMO CASES APIS
 # ==============================================================================

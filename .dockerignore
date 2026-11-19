@@ -13,4 +13,5 @@ venv/
 .coverage
 htmlcov/
 *.log
-cases/CASE-TASK7-*
+cases/*
+!cases/.gitkeep
