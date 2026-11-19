@@ -26,7 +26,12 @@ function setupThemeToggle() {
   const themeLabel = document.getElementById("theme-label");
 
   // Load saved theme or default to 'dark'
-  const savedTheme = localStorage.getItem("truthlens_theme") || "dark";
+  let savedTheme = "dark";
+  try {
+    savedTheme = localStorage.getItem("truthlens_theme") || "dark";
+  } catch (e) {
+    savedTheme = "dark";
+  }
   applyTheme(savedTheme);
 
   if (toggleBtn) {
@@ -34,7 +39,9 @@ function setupThemeToggle() {
       const currentTheme = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
       const newTheme = currentTheme === "dark" ? "light" : "dark";
       applyTheme(newTheme);
-      localStorage.setItem("truthlens_theme", newTheme);
+      try {
+        localStorage.setItem("truthlens_theme", newTheme);
+      } catch (e) {}
     });
   }
 
@@ -127,7 +134,10 @@ function setupDropzones() {
   const promptImg = document.getElementById("prompt-img");
   const clearImg = document.getElementById("clear-img");
 
-  dropImg.addEventListener("click", () => inputImg.click());
+  dropImg.addEventListener("click", (e) => {
+    if (e.target === inputImg) return;
+    inputImg.click();
+  });
   inputImg.addEventListener("change", (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -156,7 +166,10 @@ function setupDropzones() {
   const nameVid = document.getElementById("name-vid");
   const clearVid = document.getElementById("clear-vid");
 
-  dropVid.addEventListener("click", () => inputVid.click());
+  dropVid.addEventListener("click", (e) => {
+    if (e.target === inputVid) return;
+    inputVid.click();
+  });
   inputVid.addEventListener("change", (e) => {
     if (e.target.files && e.target.files[0]) {
       nameVid.textContent = e.target.files[0].name;
@@ -180,7 +193,10 @@ function setupDropzones() {
   const nameAud = document.getElementById("name-aud");
   const clearAud = document.getElementById("clear-aud");
 
-  dropAud.addEventListener("click", () => inputAud.click());
+  dropAud.addEventListener("click", (e) => {
+    if (e.target === inputAud) return;
+    inputAud.click();
+  });
   inputAud.addEventListener("change", (e) => {
     if (e.target.files && e.target.files[0]) {
       nameAud.textContent = e.target.files[0].name;
@@ -298,6 +314,7 @@ async function loadDemoCase(caseId) {
     hideLoading();
   }
 }
+window.loadDemoCase = loadDemoCase;
 
 function showLoading(msg) {
   document.getElementById("loading-stage").textContent = msg;

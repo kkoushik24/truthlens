@@ -5,12 +5,15 @@ pydantic==2.9.2
 python-dotenv==1.2.4
 
 # Web UI and Visualization
+fastapi>=0.110.0
+uvicorn>=0.28.0
+python-multipart>=0.0.9
 streamlit==1.67.0
 matplotlib==3.11.2
 pillow==11.3.0
 
 # Media Processing
-opencv-python==4.13.0.92
+opencv-python-headless>=4.8.0.76
 exifread>=3.0.0
 imageio-ffmpeg==0.6.0
 soundfile>=0.12.1
@@ -31,3 +34,4 @@ groq==1.7.0
 # Reporting and Testing
 fpdf2==2.9.0
 pytest==8.3.3
+httpx>=0.27.0
