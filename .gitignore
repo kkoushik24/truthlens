@@ -1,0 +1,38 @@
+# Environment variables
+.env
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Model caches
+.cache/
+hf_models/
+huggingface/
+
+# Cases and outputs (except demo cases)
+cases/*
+!cases/.gitkeep
+output/
+temp/
+*.tmp
+_temp_frames_*
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS files
+.DS_Store
+Thumbs.db

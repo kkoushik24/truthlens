@@ -1,0 +1,33 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Core schemas and environment
+pydantic==2.9.2
+python-dotenv==1.2.4
+
+# Web UI and Visualization
+streamlit==1.67.0
+matplotlib==3.11.2
+pillow==11.3.0
+
+# Media Processing
+opencv-python==4.13.0.92
+exifread>=3.0.0
+imageio-ffmpeg==0.6.0
+soundfile>=0.12.1
+
+# Audio Analysis
+scipy==1.18.1
+librosa>=0.10.1
+# faster-whisper>=1.0.0
+
+# Pretrained Models (CPU Build)
+torch
+torchvision
+transformers==5.22.2
+
+# Multimodal LLM Integration (Groq)
+groq==1.7.0
+
+# Reporting and Testing
+fpdf2==2.9.0
+pytest==8.3.3
