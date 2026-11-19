@@ -351,7 +351,7 @@ function updateSensorArray(report, textAnalysis) {
   const aiEl = document.getElementById("chip-ai-img");
   if (ai && ai.score !== null) {
     aiEl.textContent = `${(ai.score * 100).toFixed(0)}%`;
-    aiEl.className = ai.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-cyan-400";
+    aiEl.className = ai.score >= 0.5 ? "font-mono text-xs font-bold text-rose-600" : "font-mono text-xs font-bold text-sky-600";
   } else {
     aiEl.textContent = "N/A";
     aiEl.className = "font-mono text-xs font-bold text-slate-500";
@@ -512,24 +512,16 @@ function renderImageTab(report, artifacts) {
   const aiMeter = document.getElementById("ai-image-meter");
   const aiEv = document.getElementById("ai-image-evidence");
   if (aiSig && aiSig.score !== null) {
-    aiScore.textContent = `${(aiSig.score * 100).toFixed(1)}%`;
-    aiScore.className = "text-sm font-bold font-mono text-sky-700";
-    aiMeter.style.width = `${aiSig.score * 100}%`;
+    const pct = Math.round(aiSig.score * 100);
+    aiScore.textContent = `${pct}%`;
+    aiScore.className = "text-base font-extrabold font-mono " + (pct >= 65 ? "text-rose-600" : (pct >= 35 ? "text-amber-600" : "text-emerald-600"));
+    aiMeter.style.width = `${pct}%`;
     aiEv.textContent = aiSig.evidence;
   } else {
-    aiScore.textContent = "Cloud Mode";
-    aiScore.className = "text-[11px] font-semibold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200";
+    aiScore.textContent = "--";
+    aiScore.className = "text-sm font-bold font-mono text-slate-400";
     aiMeter.style.width = "0%";
-    aiEv.innerHTML = `
-      <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1 mt-2">
-        <div class="font-semibold text-slate-800 flex items-center gap-1.5">
-          <i class="fa-solid fa-cloud-bolt text-sky-600"></i> Cloud Optimization Active
-        </div>
-        <div class="text-[11px] text-slate-600 leading-relaxed">
-          Heavy 350MB local ViT model unmounted to maintain 0ms latency and respect the 512MB RAM limit. Visual and generative analysis is performed by the <b>Groq Vision Neural Engine</b>.
-        </div>
-      </div>
-    `;
+    aiEv.textContent = "AI generation assessment pending.";
   }
 
   // EXIF
