@@ -48,10 +48,10 @@ function setupThemeToggle() {
   function applyTheme(theme) {
     if (theme === "light") {
       document.documentElement.setAttribute("data-theme", "light");
-      if (themeLabel) themeLabel.textContent = "WHITE";
+      if (themeLabel) themeLabel.textContent = "LIGHT";
     } else {
       document.documentElement.removeAttribute("data-theme");
-      if (themeLabel) themeLabel.textContent = "BLACK";
+      if (themeLabel) themeLabel.textContent = "DARK";
     }
 
     // Refresh video chart if active so its axes colors update cleanly
@@ -345,10 +345,10 @@ function renderCaseData(data) {
   const modeBadge = document.getElementById("case-mode-badge");
   if (data.source_mode === "demo") {
     modeBadge.textContent = "SCENARIO DOSSIER";
-    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-white/10 text-white border border-white/20";
+    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
   } else {
     modeBadge.textContent = "LIVE INGESTION";
-    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-white text-black font-extrabold border border-white";
+    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
   }
 
   // Verdict Tier Badge
@@ -394,10 +394,10 @@ function updateSensorArray(report, textAnalysis) {
   const elaEl = document.getElementById("chip-ela");
   if (ela && ela.score !== null) {
     elaEl.textContent = `${(ela.score * 100).toFixed(0)}%`;
-    elaEl.className = ela.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-white";
+    elaEl.className = ela.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-cyan-400";
   } else {
     elaEl.textContent = "N/A";
-    elaEl.className = "font-mono text-xs font-bold text-zinc-500";
+    elaEl.className = "font-mono text-xs font-bold text-slate-500";
   }
 
   // AI Detector
@@ -405,10 +405,10 @@ function updateSensorArray(report, textAnalysis) {
   const aiEl = document.getElementById("chip-ai-img");
   if (ai && ai.score !== null) {
     aiEl.textContent = `${(ai.score * 100).toFixed(0)}%`;
-    aiEl.className = ai.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-white";
+    aiEl.className = ai.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-cyan-400";
   } else {
     aiEl.textContent = "N/A";
-    aiEl.className = "font-mono text-xs font-bold text-zinc-500";
+    aiEl.className = "font-mono text-xs font-bold text-slate-500";
   }
 
   // Video Keyframes
@@ -416,10 +416,10 @@ function updateSensorArray(report, textAnalysis) {
   const vidEl = document.getElementById("chip-video");
   if (vid && vid.score !== null) {
     vidEl.textContent = `${(vid.score * 100).toFixed(0)}%`;
-    vidEl.className = vid.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-white";
+    vidEl.className = vid.score >= 0.5 ? "font-mono text-xs font-bold text-red-400" : "font-mono text-xs font-bold text-cyan-400";
   } else {
     vidEl.textContent = "N/A";
-    vidEl.className = "font-mono text-xs font-bold text-zinc-500";
+    vidEl.className = "font-mono text-xs font-bold text-slate-500";
   }
 
   // Audio Acoustics
@@ -429,10 +429,10 @@ function updateSensorArray(report, textAnalysis) {
     const validScores = audSignals.map((s) => s.score).filter((sc) => sc !== null && sc !== undefined);
     const avg = validScores.length ? validScores.reduce((a, b) => a + b, 0) / validScores.length : 0;
     audEl.textContent = `${(avg * 100).toFixed(0)}%`;
-    audEl.className = avg >= 0.35 ? "font-mono text-xs font-bold text-amber-400" : "font-mono text-xs font-bold text-white";
+    audEl.className = avg >= 0.35 ? "font-mono text-xs font-bold text-amber-400" : "font-mono text-xs font-bold text-emerald-400";
   } else {
     audEl.textContent = "N/A";
-    audEl.className = "font-mono text-xs font-bold text-zinc-500";
+    audEl.className = "font-mono text-xs font-bold text-slate-500";
   }
 
   // Context Claims
@@ -444,11 +444,11 @@ function updateSensorArray(report, textAnalysis) {
       claimsEl.className = "font-mono text-xs font-bold text-red-400";
     } else {
       claimsEl.textContent = `${c.supported || 0} Verified`;
-      claimsEl.className = "font-mono text-xs font-bold text-white";
+      claimsEl.className = "font-mono text-xs font-bold text-emerald-400";
     }
   } else {
     claimsEl.textContent = "SKIPPED";
-    claimsEl.className = "font-mono text-xs font-bold text-zinc-500";
+    claimsEl.className = "font-mono text-xs font-bold text-slate-500";
   }
 }
 
@@ -613,12 +613,12 @@ function renderVideoTab(report, artifacts) {
           {
             label: "AI Detector Probability",
             data: dataPoints,
-            borderColor: isLight ? "#000000" : "#ffffff",
-            backgroundColor: isLight ? "rgba(0, 0, 0, 0.06)" : "rgba(255, 255, 255, 0.12)",
+            borderColor: isLight ? "#0284c7" : "#00e5ff",
+            backgroundColor: isLight ? "rgba(2, 132, 199, 0.12)" : "rgba(0, 229, 255, 0.15)",
             fill: true,
             tension: 0.35,
             borderWidth: 2,
-            pointBackgroundColor: isLight ? "#000000" : "#ffffff",
+            pointBackgroundColor: isLight ? "#0284c7" : "#00e5ff",
             pointRadius: 4,
           },
         ],
@@ -786,9 +786,9 @@ function setupClaimFilters() {
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       filterBtns.forEach((b) => {
-        b.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-zinc-900 text-zinc-400 border border-white/10 hover:border-white hover:text-white";
+        b.className = "px-2.5 py-1 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-white/5";
       });
-      btn.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-white text-black border border-white filter-active";
+      btn.className = "px-2.5 py-1 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 filter-active";
       activeClaimFilter = btn.getAttribute("data-filter");
 
       if (activeCaseData && activeCaseData.text_analysis) {
@@ -801,7 +801,7 @@ function setupClaimFilters() {
 function renderFilteredClaims(comparisons) {
   const tbody = document.getElementById("text-claims-tbody");
   if (!comparisons || comparisons.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-zinc-500 py-4">No atomic claims extracted (empty or skipped).</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-slate-500 py-4">No atomic claims extracted (empty or skipped).</td></tr>`;
     return;
   }
 
@@ -811,14 +811,14 @@ function renderFilteredClaims(comparisons) {
   });
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-zinc-500 py-4">No claims match the filter "${activeClaimFilter}".</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-slate-500 py-4">No claims match the filter "${activeClaimFilter}".</td></tr>`;
     return;
   }
 
   tbody.innerHTML = filtered
     .map((c) => {
-      let badgeClass = "bg-zinc-800 text-zinc-300 border border-zinc-700";
-      if (c.status === "supported") badgeClass = "bg-white/10 text-white border border-white/25";
+      let badgeClass = "bg-slate-700/80 text-slate-300 border border-slate-600";
+      if (c.status === "supported") badgeClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
       if (c.status === "contradicted") badgeClass = "bg-red-500/20 text-red-400 border border-red-500/40";
 
       const evStr = c.evidence_ids && c.evidence_ids.length > 0 ? c.evidence_ids.join(", ") : "none";
@@ -826,13 +826,13 @@ function renderFilteredClaims(comparisons) {
 
       return `
       <tr>
-        <td class="font-mono font-bold text-white">${c.claim_id}</td>
-        <td class="font-medium text-zinc-200">${c.claim_text}</td>
-        <td><code class="text-[11px] bg-zinc-900 border border-white/10 px-1.5 py-0.5 rounded text-zinc-300 font-mono">${c.type}</code></td>
+        <td class="font-mono font-bold text-cyan-400">${c.claim_id}</td>
+        <td class="font-medium text-slate-200">${c.claim_text}</td>
+        <td><code class="text-[11px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">${c.type}</code></td>
         <td class="text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase ${badgeClass}">${c.status}</span></td>
-        <td class="font-mono text-xs text-zinc-400">${evStr}</td>
-        <td class="text-xs text-zinc-300">${c.reason}</td>
-        <td class="text-right font-mono font-bold text-zinc-400">${confPct}</td>
+        <td class="font-mono text-xs text-slate-400">${evStr}</td>
+        <td class="text-xs text-slate-300">${c.reason}</td>
+        <td class="text-right font-mono font-bold text-slate-400">${confPct}</td>
       </tr>
     `;
     })
@@ -851,7 +851,7 @@ function renderCorrelationTab(report) {
       .map((f) => {
         const isStrengthen = f.effect === "strengthens";
         const badgeClass = isStrengthen ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-        const cites = (f.supporting_signals || []).map((s) => `<span class="font-mono bg-zinc-900 border border-white/15 px-2 py-0.5 rounded text-[10px] text-white font-semibold">${s}</span>`).join(" ");
+        const cites = (f.supporting_signals || []).map((s) => `<span class="font-mono bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-cyan-400">${s}</span>`).join(" ");
 
         return `
         <div class="cyber-card p-4">
@@ -897,8 +897,8 @@ function renderReportTab(data) {
       <div class="flex items-center justify-between py-1.5 border-b border-white/5">
         <span class="text-slate-400 truncate max-w-xs">${fname}:</span>
         <div class="flex items-center gap-2">
-          <span class="text-white font-mono text-[11px] truncate max-w-sm">${h}</span>
-          <button type="button" class="text-zinc-400 hover:text-white text-xs transition" onclick="navigator.clipboard.writeText('${h}')" title="Copy Hash">
+          <span class="text-cyan-400 font-mono text-[11px] truncate max-w-sm">${h}</span>
+          <button type="button" class="text-slate-500 hover:text-cyan-400 text-xs" onclick="navigator.clipboard.writeText('${h}')" title="Copy Hash">
             <i class="fa-solid fa-copy"></i>
           </button>
         </div>
